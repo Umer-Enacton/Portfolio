@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://umer-saiyads-projects.vercel.app/sitemap.xml",
+    sitemap: "https://umer-saiyad.vercel.app/sitemap.xml",
   };
 }

@@ -31,17 +31,17 @@ export const metadata: Metadata = {
     "MongoDB",
     "Express.js",
   ],
-  authors: [{ name: "Umer Saiyad", url: "https://umer-saiyads-projects.vercel.app" }],
+  authors: [{ name: "Umer Saiyad", url: "https://umer-saiyad.vercel.app" }],
   creator: "Umer Saiyad",
   publisher: "Umer Saiyad",
-  metadataBase: new URL("https://umer-saiyads-projects.vercel.app"),
+  metadataBase: new URL("https://umer-saiyad.vercel.app"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://umer-saiyads-projects.vercel.app",
+    url: "https://umer-saiyad.vercel.app",
     siteName: "Umer Saiyad — Full Stack Developer",
     title: "Umer Saiyad — Full Stack Developer | React, Next.js & MERN Stack",
     description:

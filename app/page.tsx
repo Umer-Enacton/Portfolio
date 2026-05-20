@@ -10,8 +10,8 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "Person",
             name: "Umer Saiyad",
-            url: "https://umer-saiyads-projects.vercel.app",
-            image: "https://umer-saiyads-projects.vercel.app/umer-hero.png",
+            url: "https://umer-saiyad.vercel.app",
+            image: "https://umer-saiyad.vercel.app/umer-hero.png",
             jobTitle: "Full Stack Web Developer",
             description:
               "Full Stack Developer specializing in React, Next.js, Node.js, and the MERN stack. Building premium web applications from Gujarat, India.",
@@ -52,7 +52,7 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "Umer Saiyad Portfolio",
-            url: "https://umer-saiyads-projects.vercel.app",
+            url: "https://umer-saiyad.vercel.app",
             description:
               "Portfolio of Umer Saiyad — Full Stack Developer specializing in React, Next.js, and modern web technologies.",
             author: {
