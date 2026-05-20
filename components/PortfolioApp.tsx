@@ -441,7 +441,7 @@ function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section id="home" ref={ref} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         {/* Dot grid */}
@@ -847,7 +847,7 @@ function Testimonials() {
 
 function Process() {
   return (
-    <section className="py-24 sm:py-32">
+    <section id="process" className="py-24 sm:py-32">
       <Container>
         <div className="text-center mb-16">
           <SectionLabel>How I Work</SectionLabel>
@@ -1066,12 +1066,144 @@ function ScrollProgress() {
   );
 }
 
+// ─── Section Dots Navigation (Liquid Goo Effect) ─────────────────────────────
+
+const sectionIds = ["home", "about", "services", "projects", "skills", "testimonials", "process", "contact"];
+
+function SectionDots() {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const sections = sectionIds.map((id) => document.getElementById(id) || document.querySelector(`section:nth-of-type(${sectionIds.indexOf(id) + 1})`));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = sections.indexOf(entry.target as HTMLElement);
+            if (index !== -1) setActive(index);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    sections.forEach((section) => {
+      if (section) observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  });
+
+  const handleClick = (index: number) => {
+    setActive(index);
+    const section = document.getElementById(sectionIds[index]) || document.querySelector(`section:nth-of-type(${index + 1})`);
+    if (section) section.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const dotSize = 12;
+  const gap = 28;
+  const totalHeight = (sectionIds.length - 1) * gap + dotSize;
+  const svgWidth = 36;
+
+  return (
+    <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 hidden md:block">
+      <svg
+        width={svgWidth}
+        height={totalHeight + 10}
+        viewBox={`0 0 ${svgWidth} ${totalHeight + 10}`}
+        className="overflow-visible"
+      >
+        {/* Goo filter for liquid merging effect */}
+        <defs>
+          <filter id="goo-dots">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -12"
+              result="goo"
+            />
+            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+          </filter>
+        </defs>
+
+        {/* Inactive dots — OUTSIDE the goo filter so they stay visible */}
+        {sectionIds.map((_, index) => (
+          <circle
+            key={`bg-${index}`}
+            cx={svgWidth / 2}
+            cy={5 + index * gap + dotSize / 2}
+            r={5}
+            fill="rgba(148, 163, 184, 0.5)"
+          />
+        ))}
+
+        {/* Group with goo filter applied — liquid blob */}
+        <g filter="url(#goo-dots)">
+          {/* Front circle — arrives first, no overshoot */}
+          <motion.circle
+            cx={svgWidth / 2}
+            r={7}
+            fill="#10b981"
+            animate={{ cy: 5 + active * gap + dotSize / 2 }}
+            transition={{
+              duration: 0.5,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          />
+
+          {/* Middle connector — creates the stretchy bridge */}
+          <motion.circle
+            cx={svgWidth / 2}
+            r={6}
+            fill="#10b981"
+            animate={{ cy: 5 + active * gap + dotSize / 2 }}
+            transition={{
+              duration: 0.65,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          />
+
+          {/* Tail circle — leaves last, creates the liquid pull */}
+          <motion.circle
+            cx={svgWidth / 2}
+            r={7}
+            fill="#10b981"
+            animate={{ cy: 5 + active * gap + dotSize / 2 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+          />
+        </g>
+
+        {/* Clickable hit areas (invisible) */}
+        {sectionIds.map((id, index) => (
+          <circle
+            key={`hit-${id}`}
+            cx={svgWidth / 2}
+            cy={5 + index * gap + dotSize / 2}
+            r={10}
+            fill="transparent"
+            className="cursor-pointer"
+            onClick={() => handleClick(index)}
+          >
+            <title>{id.charAt(0).toUpperCase() + id.slice(1)}</title>
+          </circle>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
 // ─── Main App ────────────────────────────────────────────────────────────────
 
 export function PortfolioApp() {
   return (
     <>
       <ScrollProgress />
+      <SectionDots />
       <Header />
       <main>
         <Hero />

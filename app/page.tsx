@@ -1,8 +1,10 @@
 import { PortfolioApp } from "@/components/PortfolioApp";
+import { Scene3DWrapper } from "@/components/Scene3DWrapper";
 
 export default function Home() {
   return (
     <>
+      <Scene3DWrapper />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

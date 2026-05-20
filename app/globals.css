@@ -33,6 +33,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
     color-scheme: dark;
   }
   html.light { color-scheme: light; }
@@ -46,6 +47,21 @@
     transition: background-color 0.4s ease, color 0.4s ease;
   }
 
+  /* Each section snaps to viewport */
+  section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  footer {
+    scroll-snap-align: start;
+  }
+
   ::selection { background-color: var(--color-accent); color: white; }
 
   .font-display { font-family: var(--font-display); }
@@ -56,4 +72,16 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Scrollbar — hidden completely */
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
