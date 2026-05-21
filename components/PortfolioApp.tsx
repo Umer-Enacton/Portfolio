@@ -3,12 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   motion,
-  useScroll,
-  useTransform,
-  useSpring,
   useInView,
   AnimatePresence,
 } from "framer-motion";
+import { GlowCard as GlowCardWrapper } from "@/components/GlowCard";
+import { scrollController } from "@/components/scrollState";
 import {
   MonitorSmartphone,
   Code2,
@@ -27,7 +26,6 @@ import {
   X,
   Sun,
   Moon,
-  ChevronUp,
 } from "lucide-react";
 
 // ─── Brand Icons ─────────────────────────────────────────────────────────────
@@ -222,16 +220,10 @@ function Container({ children, className = "" }: { children: React.ReactNode; cl
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className="flex items-center gap-2 mb-4"
-    >
+    <div className="flex items-center gap-2 mb-4">
       <Sparkles className="w-4 h-4 text-accent" />
       <span className="text-sm font-medium text-accent tracking-wide uppercase">{children}</span>
-    </motion.div>
+    </div>
   );
 }
 
@@ -289,15 +281,9 @@ function PremiumButton({
 
 function SectionHeading({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <motion.h2
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className={`text-3xl sm:text-4xl lg:text-5xl font-display font-bold tracking-tight ${className}`}
-    >
+    <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-display font-bold tracking-tight ${className}`}>
       {children}
-    </motion.h2>
+    </h2>
   );
 }
 
@@ -325,15 +311,8 @@ function GlassCard({
 // ─── Header ──────────────────────────────────────────────────────────────────
 
 function Header() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -341,35 +320,52 @@ function Header() {
     document.documentElement.classList.toggle("dark");
   };
 
+  const handleNavClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    // Map href to page index
+    const map: Record<string, number> = {
+      "#about": 1,
+      "#services": 2,
+      "#projects": 3,
+      "#skills": 4,
+      "#testimonials": 5,
+      "#contact": 7,
+    };
+    const page = map[href];
+    if (page !== undefined) {
+      scrollController.goTo(page);
+    } else {
+      scrollController.goTo(0);
+    }
+  };
+
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-bg/80 backdrop-blur-xl border-b border-border" : ""
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border"
     >
       <Container>
         <div className="flex items-center justify-between h-16 sm:h-20">
-          <motion.a
-            href="#"
+          <motion.button
+            onClick={() => scrollController.goTo(0)}
             className="font-display font-bold text-xl text-text"
             whileHover={{ scale: 1.05 }}
           >
             US<span className="text-accent">.</span>
-          </motion.a>
+          </motion.button>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={item.href}
+                onClick={() => handleNavClick(item.href)}
                 className="text-sm text-text-secondary hover:text-accent transition-colors duration-200"
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </nav>
 
@@ -384,7 +380,7 @@ function Header() {
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </motion.button>
 
-            <PremiumButton variant="primary" href="#contact" icon="arrow">
+            <PremiumButton variant="primary" onClick={() => scrollController.goTo(7)} icon="arrow">
               <span className="hidden sm:inline">Let&apos;s Talk</span>
               <span className="sm:hidden">Talk</span>
             </PremiumButton>
@@ -414,14 +410,13 @@ function Header() {
             <Container>
               <nav className="py-4 flex flex-col gap-3">
                 {navItems.map((item) => (
-                  <a
+                  <button
                     key={item.label}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-sm text-text-secondary hover:text-accent transition-colors py-2"
+                    onClick={() => handleNavClick(item.href)}
+                    className="text-sm text-text-secondary hover:text-accent transition-colors py-2 text-left"
                   >
                     {item.label}
-                  </a>
+                  </button>
                 ))}
               </nav>
             </Container>
@@ -435,16 +430,10 @@ function Header() {
 // ─── Hero ────────────────────────────────────────────────────────────────────
 
 function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
   return (
-    <section id="home" ref={ref} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section id="home" className="relative h-full flex items-center pt-20 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
-        {/* Dot grid */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -452,7 +441,6 @@ function Hero() {
             backgroundSize: "24px 24px",
           }}
         />
-        {/* Gradient orbs */}
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-accent/10 rounded-full blur-[128px] dark:opacity-100 opacity-30" />
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/5 rounded-full blur-[128px] dark:opacity-100 opacity-20" />
       </div>
@@ -460,7 +448,7 @@ function Hero() {
       <Container className="relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <motion.div style={{ opacity }}>
+          <div>
             <motion.div
               variants={fadeUp}
               initial="hidden"
@@ -504,10 +492,10 @@ function Hero() {
               custom={3}
               className="flex flex-wrap gap-4 mb-12"
             >
-              <PremiumButton variant="primary" href="#projects" icon="arrow">
+              <PremiumButton variant="primary" onClick={() => scrollController.goTo(3)} icon="arrow">
                 View Projects
               </PremiumButton>
-              <PremiumButton variant="secondary" href="#contact" icon="download">
+              <PremiumButton variant="secondary" onClick={() => scrollController.goTo(7)} icon="download">
                 Download CV
               </PremiumButton>
             </motion.div>
@@ -531,51 +519,45 @@ function Hero() {
                 </div>
               ))}
             </motion.div>
-          </motion.div>
+          </div>
 
           {/* Right - Hero Image */}
           <motion.div
-            style={{ y }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className="relative hidden lg:block"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative"
-            >
-              {/* Image container */}
-              <div className="relative w-full aspect-[3/4] max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-b from-accent/20 to-transparent rounded-3xl dark:block hidden" />
-                <img
-                  src={profile.heroImage}
-                  alt="Umer Saiyad - Full Stack Developer standing with arms crossed, professional portrait"
-                  className="w-full h-full object-cover object-top rounded-3xl"
-                />
-                {/* Floating cards */}
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -left-8 top-1/4 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-medium">{profile.availability}</span>
-                  </div>
-                </motion.div>
+            <div className="relative w-full aspect-[3/4] max-w-md mx-auto">
+              <div className="absolute inset-0 bg-gradient-to-b from-accent/20 to-transparent rounded-3xl dark:block hidden" />
+              <img
+                src={profile.heroImage}
+                alt="Umer Saiyad - Full Stack Developer standing with arms crossed, professional portrait"
+                className="w-full h-full object-cover object-top rounded-3xl"
+              />
+              {/* Floating cards */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -left-8 top-1/4 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-medium">{profile.availability}</span>
+                </div>
+              </motion.div>
 
-                <motion.div
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -right-8 bottom-1/3 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
-                >
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-medium">{profile.location}</span>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute -right-8 bottom-1/3 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-medium">{profile.location}</span>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </Container>
@@ -587,11 +569,8 @@ function Hero() {
 // ─── About ───────────────────────────────────────────────────────────────────
 
 function About() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section id="about" ref={ref} className="py-24 sm:py-32">
+    <section id="about">
       <Container>
         <SectionLabel>About Me</SectionLabel>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -600,11 +579,7 @@ function About() {
               Passionate about creating <span className="text-accent">impactful</span> digital experiences
             </SectionHeading>
           </div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div>
             <p className="text-text-secondary mb-6 leading-relaxed">
               I&apos;m a full-stack developer with {profile.experience} of experience building web applications
               that are both beautiful and functional. I specialize in React, Next.js, and Node.js ecosystems.
@@ -628,7 +603,7 @@ function About() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>
@@ -639,7 +614,7 @@ function About() {
 
 function Services() {
   return (
-    <section id="services" className="py-24 sm:py-32">
+    <section id="services">
       <Container>
         <div className="text-center mb-16">
           <SectionLabel>What I Do</SectionLabel>
@@ -649,23 +624,14 @@ function Services() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, i) => (
-            <motion.div
-              key={service.title}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-            >
-              <GlassCard className="h-full text-center group">
-                <div className="w-14 h-14 rounded-2xl bg-accent-subtle flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
-                  <service.icon className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="font-display font-semibold text-lg mb-3">{service.title}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{service.description}</p>
-              </GlassCard>
-            </motion.div>
+          {services.map((service) => (
+            <GlassCard key={service.title} className="h-full text-center group">
+              <div className="w-14 h-14 rounded-2xl bg-accent-subtle flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
+                <service.icon className="w-6 h-6 text-accent" />
+              </div>
+              <h3 className="font-display font-semibold text-lg mb-3">{service.title}</h3>
+              <p className="text-sm text-text-secondary leading-relaxed">{service.description}</p>
+            </GlassCard>
           ))}
         </div>
       </Container>
@@ -677,7 +643,7 @@ function Services() {
 
 function Projects() {
   return (
-    <section id="projects" className="py-24 sm:py-32">
+    <section id="projects">
       <Container>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-4">
           <div>
@@ -692,55 +658,46 @@ function Projects() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.title}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-            >
-              <GlassCard className="overflow-hidden group p-0">
-                <div className="relative overflow-hidden aspect-[16/10]">
-                  <motion.img
-                    src={project.image}
-                    alt={
-                      project.title === "LawAssist"
-                        ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
-                        : project.title === "HomeFixCare"
-                        ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
-                        : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
-                    }
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <a
-                      href={project.link}
-                      className="inline-flex items-center gap-1 text-white text-sm font-medium"
+          {projects.map((project) => (
+            <GlassCard key={project.title} className="overflow-hidden group p-0">
+              <div className="relative overflow-hidden aspect-[16/10]">
+                <motion.img
+                  src={project.image}
+                  alt={
+                    project.title === "LawAssist"
+                      ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
+                      : project.title === "HomeFixCare"
+                      ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
+                      : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
+                  }
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <a
+                    href={project.link}
+                    className="inline-flex items-center gap-1 text-white text-sm font-medium"
+                  >
+                    View Project <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+              <div className="p-5">
+                <h3 className="font-display font-semibold text-lg mb-2">{project.title}</h3>
+                <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-3 py-1 rounded-full bg-accent-subtle text-accent font-medium"
                     >
-                      View Project <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <div className="p-5">
-                  <h3 className="font-display font-semibold text-lg mb-2">{project.title}</h3>
-                  <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-xs px-3 py-1 rounded-full bg-accent-subtle text-accent font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </GlassCard>
-            </motion.div>
+              </div>
+            </GlassCard>
           ))}
         </div>
       </Container>
@@ -748,20 +705,13 @@ function Projects() {
   );
 }
 
-
 // ─── Skills ──────────────────────────────────────────────────────────────────
 
 function Skills() {
   return (
-    <section id="skills" className="py-24 sm:py-32">
+    <section id="skills">
       <Container>
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="bg-surface rounded-3xl border border-border p-8 sm:p-12 lg:p-16"
-        >
+        <div className="bg-surface rounded-3xl border border-border p-8 sm:p-12 lg:p-16">
           <div className="text-center mb-12">
             <SectionLabel>Tech Stack</SectionLabel>
             <SectionHeading>
@@ -770,14 +720,9 @@ function Skills() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {skills.map((skill, i) => (
+            {skills.map((skill) => (
               <motion.div
                 key={skill}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                custom={i}
                 whileHover={{ scale: 1.05, y: -2 }}
                 className="flex items-center justify-center px-4 py-3 rounded-xl bg-card border border-border text-sm font-medium text-text-secondary hover:text-accent hover:border-accent/30 transition-colors cursor-default"
               >
@@ -785,7 +730,7 @@ function Skills() {
               </motion.div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </Container>
     </section>
   );
@@ -795,7 +740,7 @@ function Skills() {
 
 function Testimonials() {
   return (
-    <section id="testimonials" className="py-24 sm:py-32">
+    <section id="testimonials">
       <Container>
         <div className="text-center mb-16">
           <SectionLabel>Testimonials</SectionLabel>
@@ -805,37 +750,28 @@ function Testimonials() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, i) => (
-            <motion.div
-              key={testimonial.name}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-            >
-              <GlassCard className="h-full">
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-accent text-accent" />
-                  ))}
+          {testimonials.map((testimonial) => (
+            <GlassCard key={testimonial.name} className="h-full">
+              <div className="flex gap-1 mb-4">
+                {Array.from({ length: testimonial.rating }).map((_, j) => (
+                  <Star key={j} className="w-4 h-4 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                &ldquo;{testimonial.content}&rdquo;
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-10 h-10 rounded-full bg-accent-subtle flex items-center justify-center">
+                  <span className="text-accent font-semibold text-sm">
+                    {testimonial.name.charAt(0)}
+                  </span>
                 </div>
-                <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                  &ldquo;{testimonial.content}&rdquo;
-                </p>
-                <div className="flex items-center gap-3 mt-auto">
-                  <div className="w-10 h-10 rounded-full bg-accent-subtle flex items-center justify-center">
-                    <span className="text-accent font-semibold text-sm">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">{testimonial.name}</div>
-                    <div className="text-xs text-text-muted">{testimonial.role}</div>
-                  </div>
+                <div>
+                  <div className="font-medium text-sm">{testimonial.name}</div>
+                  <div className="text-xs text-text-muted">{testimonial.role}</div>
                 </div>
-              </GlassCard>
-            </motion.div>
+              </div>
+            </GlassCard>
           ))}
         </div>
       </Container>
@@ -847,7 +783,7 @@ function Testimonials() {
 
 function Process() {
   return (
-    <section id="process" className="py-24 sm:py-32">
+    <div id="process">
       <Container>
         <div className="text-center mb-16">
           <SectionLabel>How I Work</SectionLabel>
@@ -857,35 +793,27 @@ function Process() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {processSteps.map((step, i) => (
-            <motion.div
-              key={step.step}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={i}
-            >
-              <GlassCard className="h-full relative">
-                <div className="w-12 h-12 rounded-2xl bg-accent-subtle flex items-center justify-center mb-5">
-                  <span className="font-display font-bold text-accent">{step.step}</span>
-                </div>
-                <h3 className="font-display font-semibold text-lg mb-3">{step.title}</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{step.description}</p>
-              </GlassCard>
-            </motion.div>
+          {processSteps.map((step) => (
+            <GlassCard key={step.step} className="h-full relative">
+              <div className="w-12 h-12 rounded-2xl bg-accent-subtle flex items-center justify-center mb-5">
+                <span className="font-display font-bold text-accent">{step.step}</span>
+              </div>
+              <h3 className="font-display font-semibold text-lg mb-3">{step.title}</h3>
+              <p className="text-sm text-text-secondary leading-relaxed">{step.description}</p>
+            </GlassCard>
           ))}
         </div>
       </Container>
-    </section>
+    </div>
   );
 }
+
 
 // ─── Contact ─────────────────────────────────────────────────────────────────
 
 function Contact() {
   return (
-    <section id="contact" className="py-24 sm:py-32">
+    <section id="contact" className="h-full flex items-center">
       <Container>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -893,26 +821,12 @@ function Contact() {
             <SectionHeading>
               Let&apos;s work <span className="text-accent">together</span>
             </SectionHeading>
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={1}
-              className="text-text-secondary mt-6 mb-8 max-w-md"
-            >
+            <p className="text-text-secondary mt-6 mb-8 max-w-md">
               Have a project in mind? I&apos;d love to hear about it. Let&apos;s discuss how we can
               bring your ideas to life.
-            </motion.p>
+            </p>
 
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={2}
-              className="space-y-4 mb-8"
-            >
+            <div className="space-y-4 mb-8">
               {[
                 { icon: Mail, label: profile.email, href: `mailto:${profile.email}` },
                 { icon: Phone, label: profile.phone, href: `tel:${profile.phone}` },
@@ -931,16 +845,9 @@ function Contact() {
                   </span>
                 </a>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={3}
-              className="flex gap-3"
-            >
+            <div className="flex gap-3">
               {socialLinks.map((link) => (
                 <motion.a
                   key={link.name}
@@ -955,18 +862,11 @@ function Contact() {
                   <BrandIcon name={link.name} className="w-4 h-4" />
                 </motion.a>
               ))}
-            </motion.div>
+            </div>
           </div>
 
           {/* Workspace Image */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            custom={2}
-            className="relative hidden lg:block"
-          >
+          <div className="relative hidden lg:block">
             <div className="relative rounded-3xl overflow-hidden aspect-square">
               <img
                 src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=600&fit=crop"
@@ -983,7 +883,7 @@ function Contact() {
                 </GlassCard>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>
@@ -993,18 +893,10 @@ function Contact() {
 // ─── Footer ──────────────────────────────────────────────────────────────────
 
 function FooterSection() {
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 500);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <footer className="py-12 border-t border-border">
+    <div className="absolute bottom-0 left-0 right-0 py-4 border-t border-border bg-bg/50 backdrop-blur-sm z-20">
       <Container>
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-display font-bold text-lg">
               US<span className="text-accent">.</span>
@@ -1030,38 +922,27 @@ function FooterSection() {
           </div>
         </div>
       </Container>
-
-      {/* Scroll to top */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/25 z-50"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Scroll to top"
-          >
-            <ChevronUp className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </footer>
+    </div>
   );
 }
 
 // ─── Scroll Progress Bar ─────────────────────────────────────────────────────
 
 function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = scrollController.subscribe(() => {
+      setProgress(scrollController.currentPage / (scrollController.totalPages - 1));
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 h-[3px] bg-accent origin-left z-[100]"
-      style={{ scaleX }}
+      animate={{ scaleX: progress }}
+      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
     />
   );
 }
@@ -1074,31 +955,14 @@ function SectionDots() {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const sections = sectionIds.map((id) => document.getElementById(id) || document.querySelector(`section:nth-of-type(${sectionIds.indexOf(id) + 1})`));
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = sections.indexOf(entry.target as HTMLElement);
-            if (index !== -1) setActive(index);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    sections.forEach((section) => {
-      if (section) observer.observe(section);
+    const unsubscribe = scrollController.subscribe(() => {
+      setActive(scrollController.currentPage);
     });
-
-    return () => observer.disconnect();
-  });
+    return unsubscribe;
+  }, []);
 
   const handleClick = (index: number) => {
-    setActive(index);
-    const section = document.getElementById(sectionIds[index]) || document.querySelector(`section:nth-of-type(${index + 1})`);
-    if (section) section.scrollIntoView({ behavior: "smooth" });
+    scrollController.goTo(index);
   };
 
   const dotSize = 12;
@@ -1128,7 +992,7 @@ function SectionDots() {
           </filter>
         </defs>
 
-        {/* Inactive dots — OUTSIDE the goo filter so they stay visible */}
+        {/* Inactive dots */}
         {sectionIds.map((_, index) => (
           <circle
             key={`bg-${index}`}
@@ -1141,44 +1005,30 @@ function SectionDots() {
 
         {/* Group with goo filter applied — liquid blob */}
         <g filter="url(#goo-dots)">
-          {/* Front circle — arrives first, no overshoot */}
           <motion.circle
             cx={svgWidth / 2}
             r={7}
             fill="#10b981"
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
-            transition={{
-              duration: 0.5,
-              ease: [0.4, 0, 0.2, 1],
-            }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
           />
-
-          {/* Middle connector — creates the stretchy bridge */}
           <motion.circle
             cx={svgWidth / 2}
             r={6}
             fill="#10b981"
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
-            transition={{
-              duration: 0.65,
-              ease: [0.4, 0, 0.2, 1],
-            }}
+            transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
           />
-
-          {/* Tail circle — leaves last, creates the liquid pull */}
           <motion.circle
             cx={svgWidth / 2}
             r={7}
             fill="#10b981"
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
-            transition={{
-              duration: 0.8,
-              ease: [0.4, 0, 0.2, 1],
-            }}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
           />
         </g>
 
-        {/* Clickable hit areas (invisible) */}
+        {/* Clickable hit areas */}
         {sectionIds.map((id, index) => (
           <circle
             key={`hit-${id}`}
@@ -1197,25 +1047,152 @@ function SectionDots() {
   );
 }
 
-// ─── Main App ────────────────────────────────────────────────────────────────
+
+// ─── Card Sections Array ─────────────────────────────────────────────────────
+
+const cardSections = [About, Services, Projects, Skills, Testimonials, Process];
+
+// ─── Main App (Fullpage Scroll Controller) ───────────────────────────────────
 
 export function PortfolioApp() {
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // Subscribe to scroll controller
+  useEffect(() => {
+    const unsubscribe = scrollController.subscribe(() => {
+      setCurrentPage(scrollController.currentPage);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Global wheel handler — prevents ALL default scrolling
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (e.deltaY > 0) {
+        scrollController.next();
+      } else if (e.deltaY < 0) {
+        scrollController.prev();
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown") {
+        e.preventDefault();
+        scrollController.next();
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        scrollController.prev();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        scrollController.goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        scrollController.goTo(scrollController.totalPages - 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Touch support for mobile
+  useEffect(() => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          scrollController.next();
+        } else {
+          scrollController.prev();
+        }
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
+  // Determine what to show
+  const isHero = currentPage === 0;
+  const isContact = currentPage === 7;
+  const cardIndex = currentPage >= 1 && currentPage <= 6 ? currentPage - 1 : -1;
+
   return (
     <>
       <ScrollProgress />
       <SectionDots />
       <Header />
-      <main>
-        <Hero />
-        <About />
-        <Services />
-        <Projects />
-        <Skills />
-        <Testimonials />
-        <Process />
-        <Contact />
-      </main>
-      <FooterSection />
+      <div className="h-screen h-dvh overflow-hidden relative pointer-events-none">
+        {/* Hero */}
+        <motion.div
+          className={`absolute inset-0 ${isHero ? "pointer-events-auto" : "pointer-events-none"}`}
+          animate={{ y: isHero ? "0%" : "-100%" }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <Hero />
+        </motion.div>
+
+        {/* Card with sections */}
+        <motion.div
+          className={`absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8 ${!isHero && !isContact ? "pointer-events-auto" : "pointer-events-none"}`}
+          animate={{
+            y: isHero ? "100%" : isContact ? "-100%" : "0%",
+          }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <GlowCardWrapper className="w-full max-w-7xl relative">
+            <div className="relative overflow-hidden" style={{ height: "75vh" }}>
+              {cardSections.map((Section, index) => {
+                const offset = index - cardIndex;
+                // Only render active + neighbors for performance
+                if (Math.abs(offset) > 1) return null;
+                return (
+                  <motion.div
+                    key={index}
+                    className="absolute inset-0 flex items-center justify-center p-6 sm:p-10 lg:p-14"
+                    animate={{
+                      y: `${offset * 100}%`,
+                      opacity: offset === 0 ? 1 : 0,
+                    }}
+                    transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                  >
+                    <div className="w-full overflow-y-auto max-h-full">
+                      <Section />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </GlowCardWrapper>
+        </motion.div>
+
+        {/* Contact */}
+        <motion.div
+          className={`absolute inset-0 ${isContact ? "pointer-events-auto" : "pointer-events-none"}`}
+          animate={{ y: isContact ? "0%" : "100%" }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <Contact />
+          <FooterSection />
+        </motion.div>
+      </div>
     </>
   );
 }

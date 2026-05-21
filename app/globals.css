@@ -32,11 +32,15 @@
   }
 
   html {
-    scroll-behavior: smooth;
-    scroll-snap-type: y mandatory;
     color-scheme: dark;
   }
   html.light { color-scheme: light; }
+
+  html, body {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh;
+  }
 
   body {
     background-color: var(--color-bg);
@@ -45,21 +49,6 @@
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.4s ease, color 0.4s ease;
-  }
-
-  /* Each section snaps to viewport */
-  section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  footer {
-    scroll-snap-align: start;
   }
 
   ::selection { background-color: var(--color-accent); color: white; }

@@ -3,6 +3,7 @@
 import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { scrollController } from "@/components/scrollState";
 
 // Shared scroll state with smoothed values
 const scrollState = { progress: 0, velocity: 0, direction: 1 };
@@ -179,38 +180,35 @@ function ConnectionLines({ count = 50 }) {
 function Scene() {
   return (
     <>
-      <Particles count={200} />
-      <ConnectionLines count={50} />
+      <Particles count={120} />
+      <ConnectionLines count={30} />
     </>
   );
 }
 
 export function ParticleField() {
-  const lastScrollY = useRef(0);
+  const lastPage = useRef(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? scrollY / maxScroll : 0;
-      const delta = scrollY - lastScrollY.current;
-      const velocity = Math.min(Math.abs(delta) / 30, 1);
-      const direction = delta > 0 ? 1 : -1;
+    const unsubscribe = scrollController.subscribe(() => {
+      const page = scrollController.currentPage;
+      const totalPages = scrollController.totalPages - 1;
+      const progress = totalPages > 0 ? page / totalPages : 0;
+      const direction = page > lastPage.current ? 1 : -1;
 
       scrollState.progress = progress;
-      scrollState.velocity = velocity;
+      scrollState.velocity = 0.5; // Brief velocity burst on page change
       scrollState.direction = direction;
-      lastScrollY.current = scrollY;
-    };
+      lastPage.current = page;
+    });
 
     // Decay velocity over time
     const decayInterval = setInterval(() => {
       scrollState.velocity *= 0.9;
     }, 16);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      unsubscribe();
       clearInterval(decayInterval);
     };
   }, []);
@@ -221,7 +219,7 @@ export function ParticleField() {
         camera={{ position: [0, 0, 12], fov: 55 }}
         gl={{ antialias: false, alpha: true }}
         style={{ background: "transparent" }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1]}
       >
         <Scene />
       </Canvas>
