@@ -467,11 +467,7 @@ function Hero() {
               custom={1}
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold tracking-tight leading-[1.1] mb-6"
             >
-              {profile.tagline.split(" ").map((word, i) => (
-                <span key={i}>
-                  {word === "modern" ? <span className="text-accent">{word}</span> : word}{" "}
-                </span>
-              ))}
+              Umer Saiyad — Building <span className="text-accent">modern</span> web experiences.
             </motion.h1>
 
             <motion.p
