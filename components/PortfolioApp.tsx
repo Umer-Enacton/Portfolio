@@ -719,6 +719,14 @@ const instaAltTexts: Record<string, string> = {
   "DEkiJrHSFJD": "Umer Saiyad, Full Stack Developer from Surat, wearing a purple formal suit, a white dress shirt, and clear glasses, posing against a purple draped background with floral arrangements.",
 };
 
+const instaDates: Record<string, string> = {
+  "DXBwaGAjEDZ": "2026-04-12T12:00:00+05:30",
+  "DWJ1lq5DKS2": "2026-03-21T12:00:00+05:30",
+  "DT-CmqdjKJ-": "2026-01-26T12:00:00+05:30",
+  "DNW6bFEI2qs": "2025-08-15T12:00:00+05:30",
+  "DEkiJrHSFJD": "2025-01-08T12:00:00+05:30",
+};
+
 const instagramShortcodes = [
   "DXBwaGAjEDZ",
   "DWJ1lq5DKS2",
@@ -731,6 +739,11 @@ function SocialsSEO() {
   return (
     <div className="sr-only" aria-hidden="true">
       <article itemScope itemType="https://schema.org/SocialMediaPosting">
+        <span itemProp="author" itemScope itemType="https://schema.org/Person">
+          <meta itemProp="name" content="Umer Saiyad" />
+        </span>
+        <meta itemProp="datePublished" content="2026-05-20T10:00:00+05:30" />
+        
         <h3 itemProp="headline">Umer Saiyad - Full Stack Developer Surat Professional Tech Stack Update</h3>
         <p itemProp="articleBody">
           Driven by building scalable web applications and seamless user experiences. 🚀
@@ -744,6 +757,11 @@ function SocialsSEO() {
       </article>
       {instagramShortcodes.map((code, index) => (
         <article key={code} itemScope itemType="https://schema.org/SocialMediaPosting">
+          <span itemProp="author" itemScope itemType="https://schema.org/Person">
+            <meta itemProp="name" content="Umer Saiyad" />
+          </span>
+          <meta itemProp="datePublished" content={instaDates[code] || "2026-05-01T12:00:00+05:30"} />
+          
           <h4 itemProp="headline">Umer Saiyad Instagram Web Development Post {index + 1}</h4>
           <img itemProp="image" src={`/insta-${code}.jpg`} alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
           <a itemProp="url" href={`https://www.instagram.com/p/${code}/`} rel="noopener noreferrer" target="_blank">
