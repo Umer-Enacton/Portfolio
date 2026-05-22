@@ -64,7 +64,7 @@ const profile = {
   location: "Surat,Gujarat, India",
   email: "umersaiyad76@gmail.com",
   phone: "+91 9510131599",
-  experience: "1+ Year",
+  experience: "6+ Months",
   education: "BCA & MCA — Uka Tarsadia University",
   availability: "Available for freelance",
   heroImage: "/umer-hero-bg.png",
@@ -75,7 +75,7 @@ const navItems = [
   { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
-  { label: "Testimonials", href: "#testimonials" },
+  { label: "Socials", href: "#socials" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -148,29 +148,7 @@ const skills = [
   "Figma",
 ];
 
-const testimonials = [
-  {
-    name: "Arjun Patel",
-    role: "CEO, TechVentures",
-    content:
-      "Umer delivered an exceptional web application that exceeded our expectations. His attention to detail and technical expertise made the entire process smooth.",
-    rating: 5,
-  },
-  {
-    name: "Priya Sharma",
-    role: "Product Manager, StartupX",
-    content:
-      "Working with Umer was a fantastic experience. He understood our vision perfectly and translated it into a beautiful, functional product.",
-    rating: 5,
-  },
-  {
-    name: "Rahul Mehta",
-    role: "Founder, DigitalCraft",
-    content:
-      "Umer's full-stack skills are impressive. He built our entire platform from scratch with clean code and great performance.",
-    rating: 5,
-  },
-];
+// Social media feeds and updates loaded dynamically inside the Socials component.
 
 const processSteps = [
   {
@@ -328,7 +306,7 @@ function Header() {
       "#services": 2,
       "#projects": 3,
       "#skills": 4,
-      "#testimonials": 5,
+      "#socials": 5,
       "#contact": 7,
     };
     const page = map[href];
@@ -505,9 +483,8 @@ function Hero() {
               className="flex gap-8"
             >
               {[
-                { value: "1+", label: "Years Exp." },
-                { value: "20+", label: "Projects" },
-                { value: "15+", label: "Happy Clients" },
+                { value: "6 Months+", label: "Exp." },
+                { value: "10+", label: "Projects" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <div className="text-2xl font-display font-bold text-accent">{stat.value}</div>
@@ -663,8 +640,8 @@ function Projects() {
                     project.title === "LawAssist"
                       ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
                       : project.title === "HomeFixCare"
-                      ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
-                      : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
+                        ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
+                        : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
                   }
                   className="w-full h-full object-cover"
                   whileHover={{ scale: 1.05 }}
@@ -732,43 +709,400 @@ function Skills() {
   );
 }
 
-// ─── Testimonials ────────────────────────────────────────────────────────────
+// ─── Socials SEO Metadata (Always Rendered) ──────────────────────────────────
 
-function Testimonials() {
+const instaAltTexts: Record<string, string> = {
+  "DXBwaGAjEDZ": "Umer Saiyad, Full Stack Developer from Surat, holding a flower bouquet in a white shirt and blue jeans.",
+  "DWJ1lq5DKS2": "Umer Saiyad, Full Stack Developer from Surat, wearing a black traditional kurta and glasses outdoors by a road.",
+  "DT-CmqdjKJ-": "Umer Saiyad, Full Stack Developer from Surat, wearing a red sweatshirt, glasses, and a white prayer cap, leaning on a motorcycle.",
+  "DNW6bFEI2qs": "Umer Saiyad, a Full Stack developer from India, posing outdoor next to a clean, polished car under bright daylight.",
+  "DEkiJrHSFJD": "Umer Saiyad, Full Stack Developer from Surat, wearing a purple formal suit, a white dress shirt, and clear glasses, posing against a purple draped background with floral arrangements.",
+};
+
+const instagramShortcodes = [
+  "DXBwaGAjEDZ",
+  "DWJ1lq5DKS2",
+  "DT-CmqdjKJ-",
+  "DNW6bFEI2qs",
+  "DEkiJrHSFJD",
+];
+
+function SocialsSEO() {
   return (
-    <section id="testimonials">
-      <Container>
-        <div className="text-center mb-16">
-          <SectionLabel>Testimonials</SectionLabel>
-          <SectionHeading className="mx-auto">
-            What <span className="text-accent">Clients</span> Say
+    <div className="sr-only" aria-hidden="true">
+      <article itemScope itemType="https://schema.org/SocialMediaPosting">
+        <h3 itemProp="headline">Umer Saiyad - Full Stack Developer Surat Professional Tech Stack Update</h3>
+        <p itemProp="articleBody">
+          Driven by building scalable web applications and seamless user experiences. 🚀
+          As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.
+          Here is a look at my current core production tech stack: Next.js, React.js, JavaScript (ES6+), HTML5, CSS3, Node.js, Express.js, REST APIs, PostgreSQL, Drizzle ORM.
+        </p>
+        <img itemProp="image" src="/Umer_Saiyad_techstack.png" alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
+        <a itemProp="url" href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024" rel="noopener noreferrer" target="_blank">
+          View Umer Saiyad's tech-stack graphic on LinkedIn
+        </a>
+      </article>
+      {instagramShortcodes.map((code, index) => (
+        <article key={code} itemScope itemType="https://schema.org/SocialMediaPosting">
+          <h4 itemProp="headline">Umer Saiyad Instagram Web Development Post {index + 1}</h4>
+          <img itemProp="image" src={`/insta-${code}.jpg`} alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
+          <a itemProp="url" href={`https://www.instagram.com/p/${code}/`} rel="noopener noreferrer" target="_blank">
+            View Umer Saiyad's full stack developer life post {index + 1} on Instagram
+          </a>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+// ─── Socials (LinkedIn & Instagram Updates) ──────────────────────────────────
+
+function Socials() {
+  const [activeTab, setActiveTab] = useState<"linkedin" | "instagram">("linkedin");
+  const [instaIndex, setInstaIndex] = useState(3); // Start at index 3 (first original item)
+  const [isTransitioning, setIsTransitioning] = useState(true);
+  const [loadLiveLinkedIn, setLoadLiveLinkedIn] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Prepend last 3 items, append first 3 items: [C, D, E, A, B, C, D, E, A, B, C]
+  const extendedPosts = [
+    ...instagramShortcodes.slice(-3),
+    ...instagramShortcodes,
+    ...instagramShortcodes.slice(0, 3),
+  ];
+
+  // Detect mobile state for slide calculations
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Listen to document theme mutations to toggle embedded Instagram theme
+  useEffect(() => {
+    const checkTheme = () => {
+      // Default to dark mode (true) unless document root explicitly has the 'light' class
+      setIsDarkMode(!document.documentElement.classList.contains("light"));
+    };
+
+    checkTheme();
+
+    const observer = new MutationObserver(checkTheme);
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Seamless scroll silent jump check after transitions finish
+  const handleTransitionEnd = () => {
+    if (instaIndex >= 8) {
+      setIsTransitioning(false);
+      setInstaIndex(3);
+    } else if (instaIndex <= 2) {
+      setIsTransitioning(false);
+      setInstaIndex(7);
+    }
+  };
+
+  // Re-enable transition effect in next paint loop
+  useEffect(() => {
+    if (!isTransitioning) {
+      // A double requestAnimationFrame guarantees the browser has painted the transitionless position
+      // before we re-enable transitions, completely preventing visual iframe jumps or flickers.
+      const handle = window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setIsTransitioning(true);
+        });
+      });
+      return () => window.cancelAnimationFrame(handle);
+    }
+  }, [isTransitioning]);
+
+  // Infinite scroll handlers
+  const handlePrevInsta = () => {
+    if (!isTransitioning) return;
+    setInstaIndex((prev) => prev - 1);
+  };
+
+  const handleNextInsta = () => {
+    if (!isTransitioning) return;
+    setInstaIndex((prev) => prev + 1);
+  };
+
+  return (
+    <section id="socials" className="w-full h-full flex flex-col justify-between py-2">
+
+      <Container className="flex-grow flex flex-col justify-between max-h-[64vh]">
+        <div className="text-center mb-3">
+          <SectionLabel>Social Buzz</SectionLabel>
+          <SectionHeading className="mx-auto mb-3 text-2xl sm:text-3xl">
+            My <span className="text-accent">Socials</span> & Updates
           </SectionHeading>
+
+          {/* Tab Selector */}
+          <div className="inline-flex rounded-full bg-border/20 p-1 backdrop-blur-sm border border-border/50">
+            <button
+              onClick={() => setActiveTab("linkedin")}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${activeTab === "linkedin"
+                ? "bg-accent text-white shadow-md shadow-accent/25"
+                : "text-text-secondary hover:text-accent cursor-pointer"
+                }`}
+            >
+              <BrandIcon name="linkedin" className="w-3.5 h-3.5" />
+              LINKEDIN UPDATE
+            </button>
+            <button
+              onClick={() => setActiveTab("instagram")}
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${activeTab === "instagram"
+                ? "bg-accent text-white shadow-md shadow-accent/25"
+                : "text-text-secondary hover:text-accent cursor-pointer"
+                }`}
+            >
+              <BrandIcon name="instagram" className="w-3.5 h-3.5" />
+              INSTAGRAM POSTS
+            </button>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial) => (
-            <GlassCard key={testimonial.name} className="h-full">
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-accent text-accent" />
-                ))}
-              </div>
-              <p className="text-text-secondary text-sm leading-relaxed mb-6">
-                &ldquo;{testimonial.content}&rdquo;
-              </p>
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="w-10 h-10 rounded-full bg-accent-subtle flex items-center justify-center">
-                  <span className="text-accent font-semibold text-sm">
-                    {testimonial.name.charAt(0)}
-                  </span>
+        {/* Content Area - naturally scaling height */}
+        <div className="w-full max-w-5xl mx-auto flex items-start justify-center flex-grow h-auto min-h-[400px]">
+          {activeTab === "linkedin" ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-[800px] h-auto pb-4 px-2"
+            >
+              <div className="w-full bg-surface border border-border rounded-2xl p-4 shadow-xl flex flex-col md:flex-row gap-5 transition-colors duration-300">
+
+                {/* Left Column: Text and Header */}
+                <div className="flex-1 flex flex-col">
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-full border border-accent/30 overflow-hidden bg-accent-subtle flex items-center justify-center flex-shrink-0">
+                        <img src="/umer-avatar.png" onError={(e) => { e.currentTarget.src = "/umer-hero.png" }} alt="Umer Saiyad Profile Avatar" className="w-full h-full object-cover object-top" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm text-text flex items-center gap-1.5">
+                          Umer Saiyad
+                          <span className="bg-accent/15 text-accent text-[8px] px-1.5 py-0.5 rounded-full font-medium">Author</span>
+                        </h4>
+                        <p className="text-[9px] text-text-secondary leading-tight mt-0.5">Full Stack Developer Intern | MERN Stack | EnactOn Technologies | MCA Student</p>
+                        <p className="text-[8px] text-text-muted mt-0.5">2d • Edited • Public</p>
+                      </div>
+                    </div>
+                    <BrandIcon name="linkedin" className="w-5 h-5 text-accent hidden sm:block" />
+                  </div>
+
+                  {/* Primary Card Body */}
+                  <div className="text-[11px] leading-relaxed text-text flex flex-col justify-start">
+                    <p className="mb-1.5">Driven by building scalable web applications and seamless user experiences. 🚀</p>
+                    <p className="mb-2">As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.</p>
+                    <p className="mb-1">Here is a look at my current core production tech stack:</p>
+                    <p className="mb-0.5">🔹 <span className="font-semibold">Frontend & Frameworks:</span> Next.js, React.js, JavaScript (ES6+), HTML5, CSS3</p>
+                    <p className="mb-0.5">🔹 <span className="font-semibold">Backend Ecosystem:</span> Node.js, Express.js, REST APIs, Type-Safe Development</p>
+                    <p className="mb-0">🔹 <span className="font-semibold">Database & ORM:</span> PostgreSQL, Drizzle ORM</p>
+                  </div>
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-center mt-7 ">
+                    <a
+                      href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-full text-[11px] font-semibold text-white bg-accent hover:bg-accent-hover shadow-md shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 cursor-pointer"
+                    >
+                      <span>Open Original LinkedIn Post</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-sm">{testimonial.name}</div>
-                  <div className="text-xs text-text-muted">{testimonial.role}</div>
+
+                {/* Right Column: Full Size Image and Footer */}
+                <div className="w-full md:w-[320px] flex flex-col flex-shrink-0">
+                  <div className="w-full rounded-xl overflow-hidden border border-border/50 bg-black/5 mb-3">
+                    <img
+                      src="/Umer_Saiyad_techstack.png"
+                      alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js."
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+
+                  {/* Secondary Card Body (Footer Text) */}
+                  <div className="text-[11px] leading-relaxed text-text mb-3">
+                    <p className="mb-1.5">Always optimizing workflows, writing clean code, and exploring efficient data architectures. Let's connect!</p>
+                    <p className="text-accent text-[9px] leading-tight font-medium">#FullStackDeveloper #WebDevelopment #SoftwareEngineer #NextJS #PostgreSQL #DrizzleORM #NodeJS #ReactJS #MERN #UmerSaiyad #SuratTech #CodingLife</p>
+                  </div>
+
+
                 </div>
+
               </div>
-            </GlassCard>
-          ))}
+            </motion.div>
+          ) : (
+            /* Carousel slider displaying 3 beautiful height-increased theme-adaptive Instagram posts side-by-side on desktop, 1 on mobile */
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full h-full flex flex-col justify-between items-center"
+            >
+              {/* Slider Body with Navigation Arrows */}
+              <div className="w-full flex items-center justify-between gap-3 flex-grow">
+                {/* Left Arrow Button */}
+                <button
+                  onClick={handlePrevInsta}
+                  className="w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center text-text-secondary hover:text-accent hover:border-accent transition-all shadow-sm cursor-pointer flex-shrink-0"
+                  aria-label="Previous Instagram Post"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                {/* Viewport for sliding track */}
+                <div className="flex-grow overflow-hidden px-1 py-1">
+                  <div
+                    className={`flex ${isTransitioning ? "transition-transform duration-500 ease-out" : ""} gap-4`}
+                    onTransitionEnd={handleTransitionEnd}
+                    style={{
+                      transform: isMobile
+                        ? `translateX(calc(-${instaIndex} * (100% + 16px)))`
+                        : `translateX(calc(-${instaIndex} * (33.333% + 5.33px)))`,
+                    }}
+                  >
+                    {extendedPosts.map((code, idx) => {
+                      const locations: Record<string, string> = {
+                        "DXBwaGAjEDZ": "Uka Tarsadia University",
+                        "DWJ1lq5DKS2": "Kadod, Gujarat, India",
+                        "DT-CmqdjKJ-": "Kadod, Gujarat, India",
+                        "DNW6bFEI2qs": "Surat, Gujarat, India",
+                        "DEkiJrHSFJD": "Surat, Gujarat, India",
+                      };
+                      const altTexts: Record<string, string> = {
+                        "DXBwaGAjEDZ": "Umer Saiyad, Full Stack Developer from Surat, holding a flower bouquet in a white shirt and blue jeans.",
+                        "DWJ1lq5DKS2": "Umer Saiyad, Full Stack Developer from Surat, wearing a black traditional kurta and glasses outdoors by a road.",
+                        "DT-CmqdjKJ-": "Umer Saiyad, Full Stack Developer from Surat, wearing a red sweatshirt, glasses, and a white prayer cap, leaning on a motorcycle.",
+                        "DNW6bFEI2qs": "Umer Saiyad, a Full Stack developer from India, posing outdoor next to a clean, polished car under bright daylight.",
+                        "DEkiJrHSFJD": "Umer Saiyad, Full Stack Developer from Surat, wearing a purple formal suit, a white dress shirt, and clear glasses, posing against a purple draped background with floral arrangements.",
+                      };
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex-shrink-0 bg-card rounded-2xl border border-border flex flex-col overflow-hidden transition-all duration-300 shadow-xl group"
+                          style={{
+                            width: isMobile ? "100%" : "calc(33.333% - 11px)",
+                            height: "380px"
+                          }}
+                        >
+                          {/* Native Header */}
+                          <div className="flex items-center justify-between p-3 border-b border-border/50 bg-card">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full overflow-hidden border border-border/30 flex-shrink-0 bg-surface">
+                                <img
+                                  src="/umer-avatar.png"
+                                  onError={(e) => { e.currentTarget.src = "/umer-hero.png" }}
+                                  alt="Umer Saiyad Profile Avatar"
+                                  className="w-full h-full object-cover object-top"
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-[11px] font-semibold text-text leading-tight tracking-tight">the_umersaiyad</span>
+                                <span className="text-[9px] text-text-muted leading-tight">{locations[code] || "Gujarat, India"}</span>
+                              </div>
+                            </div>
+                            <a
+                              href={`https://www.instagram.com/p/${code}/`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-[#0095f6] hover:bg-[#1877f2] text-white text-[10px] font-semibold px-3 py-1.5 rounded-md transition-colors"
+                            >
+                              Follow
+                            </a>
+                          </div>
+
+                          {/* Image Container with Carousel Indicator */}
+                          <a
+                            href={`https://www.instagram.com/p/${code}/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-grow w-full bg-surface relative overflow-hidden flex items-center justify-center block cursor-pointer"
+                            aria-label={`View full carousel for ${altTexts[code] || 'Instagram post'}`}
+                          >
+                            <img
+                              src={`/insta-${code}.jpg`}
+                              alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            {/* Instagram Carousel Icon overlay */}
+                            <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm p-1.5 rounded-md shadow-sm">
+                              <svg aria-label="Carousel" className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 48 48">
+                                <path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h16.1c4.5 0 8.2-3.7 8.2-8.2V19.5c0-2.3-.9-4.4-2.4-6-.4-.4-1.1-.1-1.1.5z"></path>
+                              </svg>
+                            </div>
+                          </a>
+
+                          {/* Native Footer */}
+                          <div className="p-3 border-t border-border/50 bg-card flex items-center justify-between">
+                            <a
+                              href={`https://www.instagram.com/p/${code}/`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] font-semibold text-text hover:text-accent transition-colors flex items-center gap-1.5"
+                            >
+                              View full post on Instagram
+                            </a>
+                            <div className="flex items-center gap-2">
+                              <BrandIcon name="instagram" className="w-4 h-4 text-text-muted" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right Arrow Button */}
+                <button
+                  onClick={handleNextInsta}
+                  className="w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center text-text-secondary hover:text-accent hover:border-accent transition-all shadow-sm cursor-pointer flex-shrink-0"
+                  aria-label="Next Instagram Post"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Navigation Pager Dots */}
+              <div className="flex justify-center items-center gap-2 mt-3 pb-1">
+                {instagramShortcodes.map((_, idx) => {
+                  const activeDot = (instaIndex - 3 + instagramShortcodes.length) % instagramShortcodes.length;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (!isTransitioning) return;
+                        setInstaIndex(idx + 3);
+                      }}
+                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeDot === idx
+                        ? "w-6 bg-accent"
+                        : "w-2 bg-text-muted/30 hover:bg-accent/40"
+                        }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </div>
       </Container>
     </section>
@@ -966,7 +1300,7 @@ function MobileScrollProgress() {
 
 // ─── Section Dots Navigation (Liquid Goo Effect) ─────────────────────────────
 
-const sectionIds = ["home", "about", "services", "projects", "skills", "testimonials", "process", "contact"];
+const sectionIds = ["home", "about", "services", "projects", "skills", "socials", "process", "contact"];
 
 function SectionDots() {
   const [active, setActive] = useState(0);
@@ -1067,7 +1401,7 @@ function SectionDots() {
 
 // ─── Card Sections Array ─────────────────────────────────────────────────────
 
-const cardSections = [About, Services, Projects, Skills, Testimonials, Process];
+const cardSections = [About, Services, Projects, Skills, Socials, Process];
 
 // ─── Main App (Fullpage Scroll Controller) ───────────────────────────────────
 
@@ -1166,6 +1500,7 @@ export function PortfolioApp() {
   if (isMobile) {
     return (
       <>
+        <SocialsSEO />
         <MobileScrollProgress />
         <Header />
         <main className="pt-20">
@@ -1177,7 +1512,7 @@ export function PortfolioApp() {
             <Services />
             <Projects />
             <Skills />
-            <Testimonials />
+            {/* Socials section completely hidden on mobile as requested */}
             <Process />
           </div>
           <section className="py-16">
@@ -1201,6 +1536,7 @@ export function PortfolioApp() {
   return (
     <>
       <ScrollProgress />
+      <SocialsSEO />
       <SectionDots />
       <Header />
       <div className="h-screen h-dvh overflow-hidden relative pointer-events-none">
