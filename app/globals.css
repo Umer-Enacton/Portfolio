@@ -13,9 +13,9 @@
   --color-accent-subtle: rgba(16, 185, 129, 0.1);
   --color-border: rgba(255, 255, 255, 0.1);
 
-  --font-sans: "Plus Jakarta Sans", var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-plus-jakarta), var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: var(--font-geist-mono), "SF Mono", monospace;
-  --font-display: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {

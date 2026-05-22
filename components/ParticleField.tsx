@@ -2,7 +2,7 @@
 
 import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
+import { AdditiveBlending, Vector3, Points, LineSegments } from "three";
 import { scrollController } from "@/components/scrollState";
 
 // Shared scroll state with smoothed values
@@ -10,7 +10,7 @@ const scrollState = { progress: 0, velocity: 0, direction: 1 };
 const smoothState = { progress: 0, velocity: 0 };
 
 function Particles({ count = 200 }) {
-  const meshRef = useRef<THREE.Points>(null);
+  const meshRef = useRef<Points>(null);
   const mouseRef = useRef({ x: 0, y: 0 });
   const initialPositions = useRef<Float32Array | null>(null);
 
@@ -103,7 +103,7 @@ function Particles({ count = 200 }) {
         transparent
         opacity={0.7}
         sizeAttenuation
-        blending={THREE.AdditiveBlending}
+        blending={AdditiveBlending}
         depthWrite={false}
       />
     </points>
@@ -111,18 +111,18 @@ function Particles({ count = 200 }) {
 }
 
 function ConnectionLines({ count = 50 }) {
-  const lineRef = useRef<THREE.LineSegments>(null);
+  const lineRef = useRef<LineSegments>(null);
 
   const lines = useMemo(() => {
     const positions: number[] = [];
-    const points: THREE.Vector3[] = [];
+    const points: Vector3[] = [];
 
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       const r = 4 + Math.random() * 5;
       points.push(
-        new THREE.Vector3(
+        new Vector3(
           r * Math.sin(phi) * Math.cos(theta),
           r * Math.sin(phi) * Math.sin(theta),
           r * Math.cos(phi)
@@ -170,7 +170,7 @@ function ConnectionLines({ count = 50 }) {
         color="#10b981"
         transparent
         opacity={0.1}
-        blending={THREE.AdditiveBlending}
+        blending={AdditiveBlending}
         depthWrite={false}
       />
     </lineSegments>

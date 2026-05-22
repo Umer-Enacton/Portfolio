@@ -962,7 +962,7 @@ function Socials() {
                       alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js."
                       width={800}
                       height={400}
-                      priority
+                      loading="lazy"
                       className="w-full h-auto object-cover"
                     />
                   </div>
@@ -1227,10 +1227,13 @@ function Contact() {
           {/* Workspace Image */}
           <div className="relative hidden lg:block">
             <div className="relative rounded-3xl overflow-hidden aspect-square">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=600&fit=crop"
                 alt="Modern developer workspace with laptop showing code editor"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 1024px) 0vw, 50vw"
+                loading="lazy"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent dark:from-bg/80" />
               <div className="absolute bottom-6 left-6 right-6">
