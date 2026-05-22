@@ -943,6 +943,27 @@ function ScrollProgress() {
   );
 }
 
+function MobileScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? scrollTop / docHeight : 0);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      className="fixed top-0 left-0 h-[3px] bg-accent z-[100]"
+      style={{ width: `${progress * 100}%`, transition: "width 0.1s linear" }}
+    />
+  );
+}
+
 // ─── Section Dots Navigation (Liquid Goo Effect) ─────────────────────────────
 
 const sectionIds = ["home", "about", "services", "projects", "skills", "testimonials", "process", "contact"];
@@ -1052,6 +1073,15 @@ const cardSections = [About, Services, Projects, Skills, Testimonials, Process];
 
 export function PortfolioApp() {
   const [currentPage, setCurrentPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Subscribe to scroll controller
   useEffect(() => {
@@ -1061,8 +1091,9 @@ export function PortfolioApp() {
     return unsubscribe;
   }, []);
 
-  // Global wheel handler — prevents ALL default scrolling
+  // Global wheel handler — prevents ALL default scrolling (desktop only)
   useEffect(() => {
+    if (isMobile) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (e.deltaY > 0) {
@@ -1073,7 +1104,7 @@ export function PortfolioApp() {
     };
     window.addEventListener("wheel", handleWheel, { passive: false });
     return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [isMobile]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -1096,8 +1127,9 @@ export function PortfolioApp() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Touch support for mobile
+  // Touch support — disabled on mobile (normal scroll instead)
   useEffect(() => {
+    if (isMobile) return;
     let touchStartY = 0;
     let touchEndY = 0;
 
@@ -1129,6 +1161,42 @@ export function PortfolioApp() {
   const isHero = currentPage === 0;
   const isContact = currentPage === 7;
   const cardIndex = currentPage >= 1 && currentPage <= 6 ? currentPage - 1 : -1;
+
+  // Mobile: normal scrollable layout (no fullpage controller)
+  if (isMobile) {
+    return (
+      <>
+        <MobileScrollProgress />
+        <Header />
+        <main className="pt-20">
+          <section className="min-h-screen flex items-center">
+            <Hero />
+          </section>
+          <div className="px-4 py-12 space-y-20">
+            <About />
+            <Services />
+            <Projects />
+            <Skills />
+            <Testimonials />
+            <Process />
+          </div>
+          <section className="py-16">
+            <Contact />
+          </section>
+        </main>
+        <footer className="border-t border-border py-6 px-4 text-center text-sm text-text-muted">
+          <p>© {new Date().getFullYear()} {profile.name}. All rights reserved.</p>
+          <div className="flex justify-center gap-4 mt-3">
+            {socialLinks.map((link) => (
+              <a key={link.name} href={link.href} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-accent" aria-label={link.label}>
+                <BrandIcon name={link.name} className="w-4 h-4" />
+              </a>
+            ))}
+          </div>
+        </footer>
+      </>
+    );
+  }
 
   return (
     <>
