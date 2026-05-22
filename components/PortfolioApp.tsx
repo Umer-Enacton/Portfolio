@@ -741,6 +741,7 @@ function SocialsSEO() {
       <article itemScope itemType="https://schema.org/SocialMediaPosting">
         <span itemProp="author" itemScope itemType="https://schema.org/Person">
           <meta itemProp="name" content="Umer Saiyad" />
+          <meta itemProp="url" content="https://umer-saiyad.vercel.app/" />
         </span>
         <meta itemProp="datePublished" content="2026-05-20T10:00:00+05:30" />
         
@@ -759,6 +760,7 @@ function SocialsSEO() {
         <article key={code} itemScope itemType="https://schema.org/SocialMediaPosting">
           <span itemProp="author" itemScope itemType="https://schema.org/Person">
             <meta itemProp="name" content="Umer Saiyad" />
+            <meta itemProp="url" content="https://umer-saiyad.vercel.app/" />
           </span>
           <meta itemProp="datePublished" content={instaDates[code] || "2026-05-01T12:00:00+05:30"} />
           
