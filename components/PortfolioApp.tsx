@@ -441,7 +441,7 @@ function Hero() {
 
             <motion.h1
               variants={fadeUp}
-              initial="hidden"
+              initial={{ opacity: 1, y: 0 }}
               animate="visible"
               custom={1}
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold tracking-tight leading-[1.1] mb-6"
