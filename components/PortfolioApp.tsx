@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   motion,
   useInView,
@@ -503,10 +504,13 @@ function Hero() {
           >
             <div className="relative w-full aspect-[3/4] max-w-md mx-auto">
               <div className="absolute inset-0 bg-gradient-to-b from-accent/20 to-transparent rounded-3xl dark:block hidden" />
-              <img
+              <Image
                 src={profile.heroImage}
                 alt="Umer Saiyad - Full Stack Developer standing with arms crossed, professional portrait"
-                className="w-full h-full object-cover object-top rounded-3xl"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover object-top rounded-3xl"
               />
               {/* Floating cards */}
               <motion.div
@@ -634,19 +638,25 @@ function Projects() {
           {projects.map((project) => (
             <GlassCard key={project.title} className="overflow-hidden group p-0">
               <div className="relative overflow-hidden aspect-[16/10]">
-                <motion.img
-                  src={project.image}
-                  alt={
-                    project.title === "LawAssist"
-                      ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
-                      : project.title === "HomeFixCare"
-                        ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
-                        : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
-                  }
-                  className="w-full h-full object-cover"
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.4 }}
-                />
+                  className="relative w-full h-full"
+                >
+                  <Image
+                    src={project.image}
+                    alt={
+                      project.title === "LawAssist"
+                        ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
+                        : project.title === "HomeFixCare"
+                          ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
+                          : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
+                    }
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </motion.div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                   <a
                     href={project.link}
@@ -751,7 +761,7 @@ function SocialsSEO() {
           As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.
           Here is a look at my current core production tech stack: Next.js, React.js, JavaScript (ES6+), HTML5, CSS3, Node.js, Express.js, REST APIs, PostgreSQL, Drizzle ORM.
         </p>
-        <img itemProp="image" src="/Umer_Saiyad_techstack.png" alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
+        <Image itemProp="image" src="/Umer_Saiyad_techstack.png" width={800} height={400} alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
         <a itemProp="url" href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024" rel="noopener noreferrer" target="_blank">
           View Umer Saiyad's tech-stack graphic on LinkedIn
         </a>
@@ -765,7 +775,7 @@ function SocialsSEO() {
           <meta itemProp="datePublished" content={instaDates[code] || "2026-05-01T12:00:00+05:30"} />
           
           <h4 itemProp="headline">Umer Saiyad Instagram Web Development Post {index + 1}</h4>
-          <img itemProp="image" src={`/insta-${code}.jpg`} alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
+          <Image itemProp="image" src={`/insta-${code}.jpg`} width={400} height={400} alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
           <a itemProp="url" href={`https://www.instagram.com/p/${code}/`} rel="noopener noreferrer" target="_blank">
             View Umer Saiyad's full stack developer life post {index + 1} on Instagram
           </a>
@@ -906,8 +916,8 @@ function Socials() {
                   {/* Card Header */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-full border border-accent/30 overflow-hidden bg-accent-subtle flex items-center justify-center flex-shrink-0">
-                        <img src="/umer-avatar.png" onError={(e) => { e.currentTarget.src = "/umer-hero.png" }} alt="Umer Saiyad Profile Avatar" className="w-full h-full object-cover object-top" />
+                      <div className="w-10 h-10 rounded-full border border-accent/30 overflow-hidden bg-accent-subtle flex items-center justify-center flex-shrink-0 relative">
+                        <Image src="/umer-avatar.png" alt="Umer Saiyad Profile Avatar" fill sizes="40px" className="object-cover object-top" />
                       </div>
                       <div>
                         <h4 className="font-semibold text-sm text-text flex items-center gap-1.5">
@@ -946,10 +956,13 @@ function Socials() {
 
                 {/* Right Column: Full Size Image and Footer */}
                 <div className="w-full md:w-[320px] flex flex-col flex-shrink-0">
-                  <div className="w-full rounded-xl overflow-hidden border border-border/50 bg-black/5 mb-3">
-                    <img
+                  <div className="w-full rounded-xl overflow-hidden border border-border/50 bg-black/5 mb-3 relative">
+                    <Image
                       src="/Umer_Saiyad_techstack.png"
                       alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js."
+                      width={800}
+                      height={400}
+                      priority
                       className="w-full h-auto object-cover"
                     />
                   </div>
@@ -1005,13 +1018,6 @@ function Socials() {
                         "DNW6bFEI2qs": "Surat, Gujarat, India",
                         "DEkiJrHSFJD": "Surat, Gujarat, India",
                       };
-                      const altTexts: Record<string, string> = {
-                        "DXBwaGAjEDZ": "Umer Saiyad, Full Stack Developer from Surat, holding a flower bouquet in a white shirt and blue jeans.",
-                        "DWJ1lq5DKS2": "Umer Saiyad, Full Stack Developer from Surat, wearing a black traditional kurta and glasses outdoors by a road.",
-                        "DT-CmqdjKJ-": "Umer Saiyad, Full Stack Developer from Surat, wearing a red sweatshirt, glasses, and a white prayer cap, leaning on a motorcycle.",
-                        "DNW6bFEI2qs": "Umer Saiyad, a Full Stack developer from India, posing outdoor next to a clean, polished car under bright daylight.",
-                        "DEkiJrHSFJD": "Umer Saiyad, Full Stack Developer from Surat, wearing a purple formal suit, a white dress shirt, and clear glasses, posing against a purple draped background with floral arrangements.",
-                      };
 
                       return (
                         <div
@@ -1025,12 +1031,13 @@ function Socials() {
                           {/* Native Header */}
                           <div className="flex items-center justify-between p-3 border-b border-border/50 bg-card">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full overflow-hidden border border-border/30 flex-shrink-0 bg-surface">
-                                <img
+                              <div className="w-8 h-8 rounded-full overflow-hidden border border-border/30 flex-shrink-0 bg-surface relative">
+                                <Image
                                   src="/umer-avatar.png"
-                                  onError={(e) => { e.currentTarget.src = "/umer-hero.png" }}
                                   alt="Umer Saiyad Profile Avatar"
-                                  className="w-full h-full object-cover object-top"
+                                  fill
+                                  sizes="32px"
+                                  className="object-cover object-top"
                                 />
                               </div>
                               <div className="flex flex-col">
@@ -1053,13 +1060,15 @@ function Socials() {
                             href={`https://www.instagram.com/p/${code}/`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-grow w-full bg-surface relative overflow-hidden flex items-center justify-center block cursor-pointer"
-                            aria-label={`View full carousel for ${altTexts[code] || 'Instagram post'}`}
+                            className="flex-grow w-full bg-surface relative overflow-hidden flex items-center justify-center block cursor-pointer group"
+                            aria-label={`View full carousel for ${instaAltTexts[code] || 'Instagram post'}`}
                           >
-                            <img
+                            <Image
                               src={`/insta-${code}.jpg`}
                               alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                             {/* Instagram Carousel Icon overlay */}
                             <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm p-1.5 rounded-md shadow-sm">
