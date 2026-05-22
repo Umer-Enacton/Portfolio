@@ -653,6 +653,7 @@ function Projects() {
                           : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
                     }
                     fill
+                    loading="lazy"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
@@ -761,7 +762,7 @@ function SocialsSEO() {
           As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.
           Here is a look at my current core production tech stack: Next.js, React.js, JavaScript (ES6+), HTML5, CSS3, Node.js, Express.js, REST APIs, PostgreSQL, Drizzle ORM.
         </p>
-        <Image itemProp="image" src="/Umer_Saiyad_techstack.png" width={800} height={400} alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
+        <Image itemProp="image" src="/Umer_Saiyad_techstack.png" width={800} height={400} loading="lazy" alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
         <a itemProp="url" href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024" rel="noopener noreferrer" target="_blank">
           View Umer Saiyad's tech-stack graphic on LinkedIn
         </a>
@@ -775,7 +776,7 @@ function SocialsSEO() {
           <meta itemProp="datePublished" content={instaDates[code] || "2026-05-01T12:00:00+05:30"} />
           
           <h4 itemProp="headline">Umer Saiyad Instagram Web Development Post {index + 1}</h4>
-          <Image itemProp="image" src={`/insta-${code}.jpg`} width={400} height={400} alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
+          <Image itemProp="image" src={`/insta-${code}.jpg`} width={400} height={400} loading="lazy" alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
           <a itemProp="url" href={`https://www.instagram.com/p/${code}/`} rel="noopener noreferrer" target="_blank">
             View Umer Saiyad's full stack developer life post {index + 1} on Instagram
           </a>
@@ -1067,6 +1068,7 @@ function Socials() {
                               src={`/insta-${code}.jpg`}
                               alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"}
                               fill
+                              loading="lazy"
                               sizes="(max-width: 768px) 100vw, 33vw"
                               className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
