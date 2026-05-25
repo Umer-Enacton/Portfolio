@@ -1,9 +1,11 @@
 import { PortfolioApp } from "@/components/PortfolioApp";
 import { Scene3DWrapper } from "@/components/Scene3DWrapper";
+import { SocialsSEO } from "@/components/SocialsSEO";
 
 export default function Home() {
   return (
     <>
+      <SocialsSEO />
       <Scene3DWrapper />
       <script
         type="application/ld+json"

@@ -410,7 +410,7 @@ function Header() {
 
 function Hero() {
   return (
-    <section id="home" className="relative h-full flex items-center pt-20 overflow-hidden">
+    <section id="home" className="relative h-full flex items-center md:pt-20 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div
@@ -720,7 +720,7 @@ function Skills() {
   );
 }
 
-// ─── Socials SEO Metadata (Always Rendered) ──────────────────────────────────
+// ─── Instagram carousel data (also used by SocialsSEO server component) ────────
 
 const instaAltTexts: Record<string, string> = {
   "DXBwaGAjEDZ": "Umer Saiyad, Full Stack Developer from Surat, holding a flower bouquet in a white shirt and blue jeans.",
@@ -730,14 +730,6 @@ const instaAltTexts: Record<string, string> = {
   "DEkiJrHSFJD": "Umer Saiyad, Full Stack Developer from Surat, wearing a purple formal suit, a white dress shirt, and clear glasses, posing against a purple draped background with floral arrangements.",
 };
 
-const instaDates: Record<string, string> = {
-  "DXBwaGAjEDZ": "2026-04-12T12:00:00+05:30",
-  "DWJ1lq5DKS2": "2026-03-21T12:00:00+05:30",
-  "DT-CmqdjKJ-": "2026-01-26T12:00:00+05:30",
-  "DNW6bFEI2qs": "2025-08-15T12:00:00+05:30",
-  "DEkiJrHSFJD": "2025-01-08T12:00:00+05:30",
-};
-
 const instagramShortcodes = [
   "DXBwaGAjEDZ",
   "DWJ1lq5DKS2",
@@ -745,46 +737,6 @@ const instagramShortcodes = [
   "DNW6bFEI2qs",
   "DEkiJrHSFJD",
 ];
-
-function SocialsSEO() {
-  return (
-    <div className="sr-only">
-      <article itemScope itemType="https://schema.org/SocialMediaPosting">
-        <span itemProp="author" itemScope itemType="https://schema.org/Person">
-          <meta itemProp="name" content="Umer Saiyad" />
-          <meta itemProp="url" content="https://umer-saiyad.vercel.app/" />
-        </span>
-        <meta itemProp="datePublished" content="2026-05-20T10:00:00+05:30" />
-        
-        <h3 itemProp="headline">Umer Saiyad - Full Stack Developer Surat Professional Tech Stack Update</h3>
-        <p itemProp="articleBody">
-          Driven by building scalable web applications and seamless user experiences. 🚀
-          As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.
-          Here is a look at my current core production tech stack: Next.js, React.js, JavaScript (ES6+), HTML5, CSS3, Node.js, Express.js, REST APIs, PostgreSQL, Drizzle ORM.
-        </p>
-        <Image itemProp="image" src="/Umer_Saiyad_techstack.png" width={800} height={400} loading="lazy" alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js." />
-        <a itemProp="url" href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024" rel="noopener noreferrer" target="_blank">
-          View Umer Saiyad's tech-stack graphic on LinkedIn
-        </a>
-      </article>
-      {instagramShortcodes.map((code, index) => (
-        <article key={code} itemScope itemType="https://schema.org/SocialMediaPosting">
-          <span itemProp="author" itemScope itemType="https://schema.org/Person">
-            <meta itemProp="name" content="Umer Saiyad" />
-            <meta itemProp="url" content="https://umer-saiyad.vercel.app/" />
-          </span>
-          <meta itemProp="datePublished" content={instaDates[code] || "2026-05-01T12:00:00+05:30"} />
-          
-          <h4 itemProp="headline">Umer Saiyad Instagram Web Development Post {index + 1}</h4>
-          <Image itemProp="image" src={`/insta-${code}.jpg`} width={400} height={400} loading="lazy" alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"} />
-          <a itemProp="url" href={`https://www.instagram.com/p/${code}/`} rel="noopener noreferrer" target="_blank">
-            View Umer Saiyad's full stack developer life post {index + 1} on Instagram
-          </a>
-        </article>
-      ))}
-    </div>
-  );
-}
 
 // ─── Socials (LinkedIn & Instagram Updates) ──────────────────────────────────
 
@@ -1256,6 +1208,40 @@ function Contact() {
   );
 }
 
+// ─── Scroll To Top (Mobile) ─────────────────────────────────────────────────
+
+function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.button
+          key="scroll-top"
+          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 10 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-4 z-50 w-11 h-11 rounded-full bg-accent text-white shadow-lg shadow-accent/30 flex items-center justify-center md:hidden"
+          aria-label="Scroll to top"
+          whileTap={{ scale: 0.9 }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+          </svg>
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // ─── Footer ──────────────────────────────────────────────────────────────────
 
 function FooterSection() {
@@ -1536,11 +1522,10 @@ export function PortfolioApp() {
   if (isMobile) {
     return (
       <>
-        <SocialsSEO />
         <MobileScrollProgress />
         <Header />
-        <main className="pt-20">
-          <section className="min-h-screen flex items-center">
+        <main className="pt-25">
+          <section className="pb-8">
             <Hero />
           </section>
           <div className="px-4 py-12 space-y-20">
@@ -1565,6 +1550,7 @@ export function PortfolioApp() {
             ))}
           </div>
         </footer>
+        <ScrollToTopButton />
       </>
     );
   }
@@ -1572,7 +1558,6 @@ export function PortfolioApp() {
   return (
     <>
       <ScrollProgress />
-      <SocialsSEO />
       <SectionDots />
       <Header />
       <div className="h-screen h-dvh overflow-hidden relative pointer-events-none">
