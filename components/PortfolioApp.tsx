@@ -748,7 +748,7 @@ const instagramShortcodes = [
 
 function SocialsSEO() {
   return (
-    <div className="sr-only" aria-hidden="true">
+    <div className="sr-only">
       <article itemScope itemType="https://schema.org/SocialMediaPosting">
         <span itemProp="author" itemScope itemType="https://schema.org/Person">
           <meta itemProp="name" content="Umer Saiyad" />
@@ -903,7 +903,7 @@ function Socials() {
 
         {/* Content Area - naturally scaling height */}
         <div className="w-full max-w-5xl mx-auto flex items-start justify-center flex-grow h-auto min-h-[400px]">
-          {activeTab === "linkedin" ? (
+          <div className={activeTab === "linkedin" ? "w-full flex justify-center" : "hidden w-full flex justify-center"}>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -979,8 +979,10 @@ function Socials() {
 
               </div>
             </motion.div>
-          ) : (
-            /* Carousel slider displaying 3 beautiful height-increased theme-adaptive Instagram posts side-by-side on desktop, 1 on mobile */
+          </div>
+
+          <div className={activeTab === "instagram" ? "w-full h-full flex flex-col justify-between items-center" : "hidden w-full h-full flex flex-col justify-between items-center"}>
+            {/* Carousel slider displaying 3 beautiful height-increased theme-adaptive Instagram posts side-by-side on desktop, 1 on mobile */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1133,7 +1135,7 @@ function Socials() {
                 })}
               </div>
             </motion.div>
-          )}
+          </div>
         </div>
       </Container>
     </section>
