@@ -310,7 +310,21 @@ function Header() {
 
   const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
-    // Map href to page index
+
+    // On mobile: normal page uses anchor-based smooth scroll
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      const id = href.replace("#", "");
+      // Small delay so the mobile menu can close before scrolling
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 150);
+      return;
+    }
+
+    // On desktop: fullpage scroll controller
     const map: Record<string, number> = {
       "#about": 1,
       "#services": 2,

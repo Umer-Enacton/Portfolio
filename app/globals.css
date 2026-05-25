@@ -49,6 +49,14 @@
     }
   }
 
+  /* Offset anchor scroll targets so the fixed header doesn't cover them on mobile */
+  @media (max-width: 767px) {
+    section[id],
+    div[id] {
+      scroll-margin-top: 72px;
+    }
+  }
+
   body {
     background-color: var(--color-bg);
     color: var(--color-text);
