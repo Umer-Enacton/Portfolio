@@ -58,6 +58,14 @@
     transition: background-color 0.4s ease, color 0.4s ease;
   }
 
+  /* Applied for one paint frame during theme toggle to prevent janky repaint cascade */
+  .no-transition *,
+  .no-transition *::before,
+  .no-transition *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+
   ::selection { background-color: var(--color-accent); color: white; }
 
   .font-display { font-family: var(--font-display); }

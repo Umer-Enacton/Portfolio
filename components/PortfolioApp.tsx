@@ -294,9 +294,18 @@ function Header() {
   const [isDark, setIsDark] = useState(true);
 
   const toggleTheme = () => {
+    // Disable all transitions for one paint frame to prevent a janky
+    // full-page repaint cascade (especially bad on mobile with backdrop-blur).
+    document.documentElement.classList.add("no-transition");
     setIsDark(!isDark);
     document.documentElement.classList.toggle("light");
     document.documentElement.classList.toggle("dark");
+    // Re-enable transitions after the browser has painted the new theme
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove("no-transition");
+      });
+    });
   };
 
   const handleNavClick = (href: string) => {
