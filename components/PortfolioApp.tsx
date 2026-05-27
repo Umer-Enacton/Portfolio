@@ -1,14 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   motion,
-  useInView,
   AnimatePresence,
 } from "framer-motion";
 import { GlowCard as GlowCardWrapper } from "@/components/GlowCard";
 import { scrollController } from "@/components/scrollState";
+import { AnimeTextReveal } from "@/components/AnimeTextReveal";
+import { useAnimateActive } from "@/lib/animeHelper";
+import { animate, cubicBezier } from "animejs";
+import { CustomCursor } from "@/components/CustomCursor";
+import { ScrambleText } from "@/components/ScrambleText";
+import { SkillNebula } from "@/components/SkillNebula";
+import { ProjectDeck } from "@/components/ProjectDeck";
+import { TimeTravelTimeline } from "@/components/TimeTravelTimeline";
+
 import {
   MonitorSmartphone,
   Code2,
@@ -21,7 +29,6 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Star,
   ExternalLink,
   Menu,
   X,
@@ -80,33 +87,6 @@ const navItems = [
   { label: "Contact", href: "#contact" },
 ];
 
-const services = [
-  {
-    icon: MonitorSmartphone,
-    title: "Responsive Design",
-    description:
-      "Pixel-perfect interfaces that adapt seamlessly across all devices and screen sizes.",
-  },
-  {
-    icon: Code2,
-    title: "Full Stack Development",
-    description:
-      "End-to-end web applications built with modern frameworks and scalable architectures.",
-  },
-  {
-    icon: Layers3,
-    title: "API Development",
-    description:
-      "RESTful and GraphQL APIs designed for performance, security, and developer experience.",
-  },
-  {
-    icon: Palette,
-    title: "UI/UX Design",
-    description:
-      "Thoughtful user experiences with clean aesthetics and intuitive interactions.",
-  },
-];
-
 const projects = [
   {
     title: "LawAssist",
@@ -134,62 +114,13 @@ const projects = [
   },
 ];
 
-const skills = [
-  "JavaScript",
-  "TypeScript",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Python",
-  "PostgreSQL",
-  "MongoDB",
-  "Tailwind CSS",
-  "Docker",
-  "Git",
-  "Figma",
-];
-
 // Social media feeds and updates loaded dynamically inside the Socials component.
-
-const processSteps = [
-  {
-    step: "01",
-    title: "Discovery",
-    description: "Understanding your goals, audience, and project requirements through in-depth consultation.",
-  },
-  {
-    step: "02",
-    title: "Design",
-    description: "Creating wireframes and visual designs that align with your brand and user expectations.",
-  },
-  {
-    step: "03",
-    title: "Development",
-    description: "Building your project with clean, scalable code using modern technologies and best practices.",
-  },
-  {
-    step: "04",
-    title: "Delivery",
-    description: "Thorough testing, optimization, and deployment with ongoing support and maintenance.",
-  },
-];
 
 const socialLinks = [
   { name: "github", href: "https://github.com/Umer-Enacton", label: "GitHub" },
   { name: "linkedin", href: "https://www.linkedin.com/in/umer-saiyad-741710254/", label: "LinkedIn" },
   { name: "instagram", href: "https://www.instagram.com/the_umersaiyad/", label: "Instagram" },
 ];
-
-// ─── Animation Variants ──────────────────────────────────────────────────────
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  }),
-};
 
 // ─── Utility Components ──────────────────────────────────────────────────────
 
@@ -219,8 +150,26 @@ function PremiumButton({
   onClick?: () => void;
   icon?: "arrow" | "download";
 }) {
+  const btnRef = useRef<HTMLAnchorElement & HTMLButtonElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!btnRef.current) return;
+    const rect = btnRef.current.getBoundingClientRect();
+    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.38;
+    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.38;
+    // Direct DOM update — zero re-renders
+    btnRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    btnRef.current.style.transition = "none";
+  };
+
+  const handleMouseLeave = () => {
+    if (!btnRef.current) return;
+    btnRef.current.style.transform = "translate3d(0px, 0px, 0)";
+    btnRef.current.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+  };
+
   const baseClasses =
-    "inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-300";
+    "inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 cursor-pointer";
   const variants = {
     primary: "bg-accent text-white hover:bg-accent-hover shadow-lg shadow-accent/25 hover:shadow-accent/40",
     secondary: "border border-border text-text hover:border-accent hover:text-accent",
@@ -233,30 +182,35 @@ function PremiumButton({
 
   if (href) {
     return (
-      <motion.a
+      <a
+        ref={btnRef}
         href={href}
         className={classes}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        data-magnetic
       >
         {children}
         {iconEl}
-      </motion.a>
+      </a>
     );
   }
 
   return (
-    <motion.button
+    <button
+      ref={btnRef}
       onClick={onClick}
       className={classes}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      data-magnetic
     >
       {children}
       {iconEl}
-    </motion.button>
+    </button>
   );
 }
+
 
 function SectionHeading({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
@@ -266,25 +220,65 @@ function SectionHeading({ children, className = "" }: { children: React.ReactNod
   );
 }
 
+interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  hover?: boolean;
+}
+
 function GlassCard({
   children,
   className = "",
   hover = true,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  hover?: boolean;
-}) {
+  style = {},
+  onMouseMove,
+  onMouseLeave,
+  ...props
+}: GlassCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const glareRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!hover || !cardRef.current || !glareRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const gX = ((e.clientX - rect.left) / rect.width) * 100;
+    const gY = ((e.clientY - rect.top) / rect.height) * 100;
+
+    // Direct DOM update — zero React re-renders
+    glareRef.current.style.opacity = "0.08";
+    glareRef.current.style.background = `radial-gradient(circle at ${gX}% ${gY}%, rgba(255, 255, 255, 0.75) 0%, transparent 60%)`;
+    cardRef.current.style.boxShadow = "0 20px 45px rgba(16, 185, 129, 0.05)";
+
+    if (onMouseMove) onMouseMove(e);
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (glareRef.current) glareRef.current.style.opacity = "0";
+    if (cardRef.current) cardRef.current.style.boxShadow = "none";
+    if (onMouseLeave) onMouseLeave(e);
+  };
+
   return (
-    <motion.div
-      className={`rounded-2xl border border-border bg-card backdrop-blur-sm p-6 ${className}`}
-      whileHover={hover ? { y: -4, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" } : undefined}
-      transition={{ duration: 0.3 }}
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`rounded-2xl border border-border bg-card backdrop-blur-sm p-6 relative overflow-hidden transition-all duration-300 ${className}`}
+      style={{ ...style }}
+      {...props}
     >
-      {children}
-    </motion.div>
+      {/* Glare Shine Overlay — updated via ref, no re-renders */}
+      {hover && (
+        <div
+          ref={glareRef}
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{ opacity: 0, transition: "opacity 0.2s ease" }}
+        />
+      )}
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
   );
 }
+
 
 
 // ─── Header ──────────────────────────────────────────────────────────────────
@@ -352,8 +346,9 @@ function Header() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           <motion.button
             onClick={() => scrollController.goTo(0)}
-            className="font-display font-bold text-xl text-text"
+            className="font-display font-bold text-xl text-text cursor-pointer"
             whileHover={{ scale: 1.05 }}
+            data-magnetic
           >
             US<span className="text-accent">.</span>
           </motion.button>
@@ -364,7 +359,8 @@ function Header() {
               <button
                 key={item.label}
                 onClick={() => handleNavClick(item.href)}
-                className="text-sm text-text-secondary hover:text-accent transition-colors duration-200"
+                className="text-sm text-text-secondary hover:text-accent transition-colors duration-200 cursor-pointer"
+                data-magnetic
               >
                 {item.label}
               </button>
@@ -374,10 +370,11 @@ function Header() {
           <div className="flex items-center gap-3">
             <motion.button
               onClick={toggleTheme}
-              className="p-2 rounded-full border border-border hover:border-accent transition-colors"
+              className="p-2 rounded-full border border-border hover:border-accent transition-colors cursor-pointer"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               aria-label="Toggle theme"
+              data-magnetic
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </motion.button>
@@ -400,40 +397,67 @@ function Header() {
         </div>
       </Container>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border"
-          >
-            <Container>
-              <nav className="py-4 flex flex-col gap-3">
-                {navItems.map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => handleNavClick(item.href)}
-                    className="text-sm text-text-secondary hover:text-accent transition-colors py-2 text-left"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </Container>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Menu — CSS grid-rows height animation, no JS/Framer needed */}
+      <div
+        className="md:hidden bg-bg/95 backdrop-blur-xl border-b border-border overflow-hidden"
+        style={{
+          display: "grid",
+          gridTemplateRows: isMobileMenuOpen ? "1fr" : "0fr",
+          opacity: isMobileMenuOpen ? 1 : 0,
+          transition: "grid-template-rows 0.3s ease, opacity 0.25s ease",
+        }}
+      >
+        <div style={{ overflow: "hidden" }}>
+          <Container>
+            <nav className="py-4 flex flex-col gap-3">
+              {navItems.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => handleNavClick(item.href)}
+                  className="text-sm text-text-secondary hover:text-accent transition-colors py-2 text-left"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </Container>
+        </div>
+      </div>
     </motion.header>
   );
 }
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
 
-function Hero() {
+function Hero({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (isActive && !hasAnimated.current) {
+      hasAnimated.current = true;
+
+      animate(".hero-fade-item", {
+        opacity: [0, 1],
+        translateY: [30, 0],
+        duration: 600,
+        delay: (_el: Element, i: number) => i * 120,
+        ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+      });
+
+      animate(".hero-image-wrap", {
+        opacity: [0, 1],
+        scale: [0.9, 1],
+        duration: 800,
+        delay: 300,
+        ease: cubicBezier(0.25, 0.46, 0.45, 0.94),
+      });
+    }
+  }, [isActive]);
+
   return (
-    <section id="home" className="relative h-full flex items-center md:pt-20 overflow-hidden">
+    <section ref={sectionRef} id="home" className="relative h-full flex items-center md:pt-20 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div
@@ -451,44 +475,32 @@ function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
           <div>
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-subtle border border-accent/20 mb-6"
+            <div
+              className="hero-fade-item inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-subtle border border-accent/20 mb-6"
+              style={{ opacity: 0 }}
             >
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-sm text-accent font-medium">{profile.availability}</span>
-            </motion.div>
+            </div>
 
-            <motion.h1
-              variants={fadeUp}
-              initial={{ opacity: 1, y: 0 }}
-              animate="visible"
-              custom={1}
-              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold tracking-tight leading-[1.1] mb-6"
-            >
-              Umer Saiyad — Building <span className="text-accent">modern</span> web experiences.
-            </motion.h1>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold tracking-tight leading-[1.1] mb-6">
+              <ScrambleText
+                text="Umer Saiyad — Building modern web experiences."
+                active={isActive}
+              />
+            </h1>
 
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              className="text-lg text-text-secondary max-w-lg mb-8"
+            <p
+              className="hero-fade-item text-lg text-text-secondary max-w-lg mb-8"
+              style={{ opacity: 0 }}
             >
               Hi, I&apos;m {profile.name}. A passionate {profile.title.toLowerCase()} crafting
               elegant digital solutions with clean code and thoughtful design.
-            </motion.p>
+            </p>
 
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={3}
-              className="flex flex-wrap gap-4 mb-12"
+            <div
+              className="hero-fade-item flex flex-wrap gap-4 mb-12"
+              style={{ opacity: 0 }}
             >
               <PremiumButton variant="primary" onClick={() => scrollController.goTo(3)} icon="arrow">
                 View Projects
@@ -496,15 +508,12 @@ function Hero() {
               <PremiumButton variant="secondary" onClick={() => scrollController.goTo(7)} icon="download">
                 Download CV
               </PremiumButton>
-            </motion.div>
+            </div>
 
             {/* Stats */}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={4}
-              className="flex gap-8"
+            <div
+              className="hero-fade-item flex gap-8"
+              style={{ opacity: 0 }}
             >
               {[
                 { value: "6 Months+", label: "Exp." },
@@ -515,15 +524,13 @@ function Hero() {
                   <div className="text-sm text-text-muted">{stat.label}</div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           </div>
 
           {/* Right - Hero Image */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative hidden lg:block"
+          <div
+            className="hero-image-wrap relative hidden lg:block"
+            style={{ opacity: 0 }}
           >
             <div className="relative w-full aspect-[3/4] max-w-md mx-auto">
               <div className="absolute inset-0 bg-gradient-to-b from-accent/20 to-transparent rounded-3xl dark:block hidden" />
@@ -536,29 +543,21 @@ function Hero() {
                 className="object-cover object-top rounded-3xl"
               />
               {/* Floating cards */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-8 top-1/4 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
-              >
+              <div className="animate-float-up absolute -left-8 top-[45%] bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-accent" />
                   <span className="text-xs font-medium">{profile.availability}</span>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute -right-8 bottom-1/3 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl"
-              >
+              <div className="animate-float-down absolute -right-8 bottom-1/3 bg-surface/90 backdrop-blur-sm border border-border rounded-xl px-4 py-3 shadow-xl">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-accent" />
                   <span className="text-xs font-medium">{profile.location}</span>
                 </div>
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>
@@ -568,15 +567,22 @@ function Hero() {
 
 // ─── About ───────────────────────────────────────────────────────────────────
 
-function About() {
+function About({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+
   return (
-    <section id="about">
+    <section ref={sectionRef} id="about">
       <Container>
         <SectionLabel>About Me</SectionLabel>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <div>
             <SectionHeading>
-              Passionate about creating <span className="text-accent">impactful</span> digital experiences
+              <AnimeTextReveal
+                text="Passionate about creating impactful digital experiences"
+                active={isActive}
+                mode="words"
+              />
             </SectionHeading>
           </div>
           <div>
@@ -612,27 +618,218 @@ function About() {
 
 // ─── Services ────────────────────────────────────────────────────────────────
 
-function Services() {
+function Services({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+  const [hoveredIdx, setHoveredIdx] = useState<number>(0);
+
+  useEffect(() => {
+    if (active) {
+      const container = sectionRef.current?.closest(".section-scroll-container");
+      if (container) {
+        container.scrollTop = 0;
+      }
+    }
+  }, [active]);
+
+  const servicesData = [
+    {
+      step: "01",
+      shortTitle: "FRONTEND",
+      title: "Frontend Engineering",
+      description: "Crafting high-performance, accessible, and hyper-interactive user interfaces using modern web technologies.",
+      icon: Code2,
+      accentColor: "#00ffcc",
+      widget: (
+        <div className="flex flex-wrap gap-1.5 mt-1">
+          {["React", "Next.js", "TypeScript", "Tailwind", "Framer Motion", "Three.js"].map((t) => (
+            <span key={t} className="px-2 py-0.5 text-[9px] font-mono font-bold rounded-full border border-accent/30 text-accent bg-accent/5 tracking-wide">
+              {t}
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      step: "02",
+      shortTitle: "BACKEND",
+      title: "Backend Architecture",
+      description: "Designing scalable microservices, secure RESTful APIs, and optimizing complex database queries.",
+      icon: Layers3,
+      accentColor: "#a78bfa",
+      widget: (
+        <div className="flex flex-col gap-1.5 mt-1">
+          {[
+            { method: "GET", path: "/api/users", status: "200", ms: "12ms" },
+            { method: "POST", path: "/api/auth/login", status: "201", ms: "45ms" },
+            { method: "GET", path: "/api/projects", status: "200", ms: "8ms" },
+          ].map((ep) => (
+            <div key={ep.path} className="flex items-center gap-2 font-mono text-[9px]">
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-accent/15 text-accent tracking-wider">{ep.method}</span>
+              <span className="text-text-secondary flex-1 truncate">{ep.path}</span>
+              <span className="text-green-400 font-bold">{ep.status}</span>
+              <span className="text-text-muted">{ep.ms}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      step: "03",
+      shortTitle: "UI/UX DESIGN",
+      title: "UI/UX Design",
+      description: "Translating user needs into beautiful, intuitive, and highly functional wireframes and design systems.",
+      icon: Palette,
+      accentColor: "#f472b6",
+      widget: (
+        <div className="mt-1 space-y-2 w-full">
+          <div className="flex gap-3 justify-center w-full">
+            {["#0d0d12", "#1a1a2e", "#00ffcc", "#a78bfa", "#f472b6", "#ffffff"].map((c) => (
+              <div
+                key={c}
+                className="w-6 h-6 rounded-md border border-white/10 transition-transform hover:scale-110"
+                style={{ background: c }}
+                title={c}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-1 flex-1 rounded-full bg-gradient-to-r from-accent via-purple-400 to-pink-400 opacity-60" />
+            <span className="text-[8px] font-mono text-text-muted uppercase tracking-widest">Design Tokens</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      step: "04",
+      shortTitle: "DEVOPS",
+      title: "Cloud & DevOps",
+      description: "Automating CI/CD pipelines and orchestrating containerized deployments across AWS and Vercel.",
+      icon: MonitorSmartphone,
+      accentColor: "#facc15",
+      widget: (
+        <div className="flex items-center gap-1 mt-1 overflow-hidden">
+          {["Build", "Test", "Stage", "Deploy"].map((stage, i) => (
+            <React.Fragment key={stage}>
+              <div className="flex flex-col items-center gap-0.5 w-full">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-[9px] font-black font-mono border ${
+                  i <= 2 ? "border-green-400/40 bg-green-400/10 text-green-400" : "border-accent/40 bg-accent/10 text-accent animate-pulse"
+                }`}>
+                  {i <= 2 ? "✓" : "▸"}
+                </div>
+                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">{stage}</span>
+              </div>
+              {i < 3 && <div className={`w-4 h-px mt-[-10px] ${i <= 1 ? "bg-green-400/40" : "bg-border"}`} />}
+            </React.Fragment>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <section id="services">
+    <section ref={sectionRef} id="services">
       <Container>
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <SectionLabel>What I Do</SectionLabel>
           <SectionHeading className="mx-auto">
-            Services & <span className="text-accent">Expertise</span>
+            <AnimeTextReveal
+              text="Services & Expertise"
+              active={isActive}
+              mode="words"
+            />
           </SectionHeading>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service) => (
-            <GlassCard key={service.title} className="h-full text-center group">
-              <div className="w-14 h-14 rounded-2xl bg-accent-subtle flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
-                <service.icon className="w-6 h-6 text-accent" />
-              </div>
-              <h3 className="font-display font-semibold text-lg mb-3">{service.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">{service.description}</p>
-            </GlassCard>
-          ))}
+        {/* 🍱 DYNAMIC HORIZONTAL BLADE SLIDER 🍱 */}
+        <div className="flex flex-col md:flex-row gap-3 w-full max-w-5xl mx-auto text-left h-auto md:h-[340px]">
+          {servicesData.map((item, idx) => {
+            const Icon = item.icon;
+            const isExpanded = hoveredIdx === idx;
+
+            return (
+              <GlassCard
+                key={item.step}
+                className="relative overflow-hidden cursor-pointer flex flex-col p-0 transition-all duration-300 group border-border/40 hover:border-accent/40"
+                style={{
+                  flex: isExpanded ? 5 : 1,
+                  minHeight: isExpanded ? "260px" : "64px",
+                  transition: "flex 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.05), min-height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.05), background-color 0.4s ease, border-color 0.4s ease",
+                  backgroundColor: isExpanded ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.015)",
+                }}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onClick={() => setHoveredIdx(idx)}
+              >
+                {/* ═══ Desktop: Collapsed Blade — Vertical icon + title ═══ */}
+                <div
+                  className="absolute inset-0 hidden md:flex flex-col items-center justify-center gap-4 transition-all duration-300 pointer-events-none select-none z-10"
+                  style={{
+                    opacity: isExpanded ? 0 : 1,
+                  }}
+                >
+                  <div className="w-9 h-9 rounded-xl bg-accent-subtle flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-4 h-4 text-accent/70" />
+                  </div>
+                  <span
+                    className="font-display font-bold tracking-[0.25em] text-[10px] uppercase text-text-muted whitespace-nowrap flex-shrink-0"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                    }}
+                  >
+                    {item.shortTitle}
+                  </span>
+                </div>
+
+                {/* ═══ Mobile: Collapsed header ═══ */}
+                {!isExpanded && (
+                  <div className="flex md:hidden items-center justify-between w-full px-4 absolute inset-0 z-20">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-accent-subtle flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-4 h-4 text-accent" />
+                      </div>
+                      <h3 className="font-display font-bold text-[13px] text-text tracking-tight">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <span className="font-mono font-bold text-[10px] text-accent/50">{item.step}</span>
+                  </div>
+                )}
+
+                {/* ═══ Expanded Contents ═══ */}
+                <div
+                  className={`p-5 md:p-6 flex flex-col justify-center gap-2 h-full w-full ${!isExpanded ? "hidden md:flex" : "flex"}`}
+                  style={{
+                    opacity: isExpanded ? 1 : 0,
+                    transform: isExpanded ? "translateY(0)" : "translateY(16px)",
+                    pointerEvents: isExpanded ? "auto" : "none",
+                    transition: "opacity 0.4s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.05)",
+                    transitionDelay: isExpanded ? "0.15s" : "0s",
+                  }}
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-10 h-10 rounded-xl bg-accent-subtle flex items-center justify-center group-hover:bg-accent/20 transition-colors flex-shrink-0">
+                      <Icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-black text-xl md:text-2xl text-text leading-none">
+                        {item.title}
+                      </h3>
+                      <span className="font-mono text-[10px] text-accent/50 tracking-widest">{item.step}</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-lg">
+                    {item.description}
+                  </p>
+                  
+                  {/* Unique per-blade visual widget */}
+                  {item.widget}
+                </div>
+
+              </GlassCard>
+            );
+          })}
         </div>
       </Container>
     </section>
@@ -641,15 +838,22 @@ function Services() {
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
-function Projects() {
+function Projects({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+
   return (
-    <section id="projects">
+    <section ref={sectionRef} id="projects">
       <Container>
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between  gap-4">
           <div>
             <SectionLabel>My Work</SectionLabel>
             <SectionHeading>
-              Featured <span className="text-accent">Projects</span>
+              <AnimeTextReveal
+                text="Featured Projects"
+                active={isActive}
+                mode="words"
+              />
             </SectionHeading>
           </div>
           <PremiumButton variant="secondary" href="#" icon="arrow">
@@ -657,55 +861,8 @@ function Projects() {
           </PremiumButton>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <GlassCard key={project.title} className="overflow-hidden group p-0">
-              <div className="relative overflow-hidden aspect-[16/10]">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.4 }}
-                  className="relative w-full h-full"
-                >
-                  <Image
-                    src={project.image}
-                    alt={
-                      project.title === "LawAssist"
-                        ? "LawAssist - Smart FIR Filing System for legal documentation and case management"
-                        : project.title === "HomeFixCare"
-                          ? "HomeFixCare - Home Service Management System for booking repairs and maintenance"
-                          : "RadioPlugger - Song Streaming Platform for independent artists and radio promotion"
-                    }
-                    fill
-                    loading="lazy"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </motion.div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <a
-                    href={project.link}
-                    className="inline-flex items-center gap-1 text-white text-sm font-medium"
-                  >
-                    View Project <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
-              <div className="p-5">
-                <h3 className="font-display font-semibold text-lg mb-2">{project.title}</h3>
-                <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-3 py-1 rounded-full bg-accent-subtle text-accent font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </GlassCard>
-          ))}
+        <div className="flex items-center justify-center mt-6 sm:mt-0">
+          <ProjectDeck projects={projects} />
         </div>
       </Container>
     </section>
@@ -714,28 +871,34 @@ function Projects() {
 
 // ─── Skills ──────────────────────────────────────────────────────────────────
 
-function Skills() {
+function Skills({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+
   return (
-    <section id="skills">
-      <Container>
-        <div className="bg-surface rounded-3xl border border-border p-8 sm:p-12 lg:p-16">
-          <div className="text-center mb-12">
+    <section ref={sectionRef} id="skills" className="w-full">
+      <Container className="py-4">
+        <div>
+          <div className="text-center mb-6">
             <SectionLabel>Tech Stack</SectionLabel>
             <SectionHeading>
-              Skills & <span className="text-accent">Technologies</span>
+              <AnimeTextReveal
+                text="Skills & Technologies"
+                active={isActive}
+                mode="words"
+              />
             </SectionHeading>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {skills.map((skill) => (
-              <motion.div
-                key={skill}
-                whileHover={{ scale: 1.05, y: -2 }}
-                className="flex items-center justify-center px-4 py-3 rounded-xl bg-card border border-border text-sm font-medium text-text-secondary hover:text-accent hover:border-accent/30 transition-colors cursor-default"
-              >
-                {skill}
-              </motion.div>
-            ))}
+          <div className="flex items-center justify-center w-full">
+            {/* On mobile, render bento dashboard inline */}
+            <div className="w-full max-w-[760px] md:hidden">
+              <SkillNebula active={active} />
+            </div>
+            {/* On desktop, render bento dashboard with spacious layout */}
+            <div className="hidden md:block w-full max-w-5xl">
+              <SkillNebula active={active} />
+            </div>
           </div>
         </div>
       </Container>
@@ -761,356 +924,162 @@ const instagramShortcodes = [
   "DEkiJrHSFJD",
 ];
 
-// ─── Socials (LinkedIn & Instagram Updates) ──────────────────────────────────
+// ─── Socials (LinkedIn & Instagram — Split Layout with AnimeJS) ──────────────
 
-function Socials() {
-  const [activeTab, setActiveTab] = useState<"linkedin" | "instagram">("linkedin");
-  const [instaIndex, setInstaIndex] = useState(3); // Start at index 3 (first original item)
-  const [isTransitioning, setIsTransitioning] = useState(true);
-  const [loadLiveLinkedIn, setLoadLiveLinkedIn] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+function Socials({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+  const hasAnimated = useRef(false);
 
-  // Prepend last 3 items, append first 3 items: [C, D, E, A, B, C, D, E, A, B, C]
-  const extendedPosts = [
-    ...instagramShortcodes.slice(-3),
-    ...instagramShortcodes,
-    ...instagramShortcodes.slice(0, 3),
-  ];
-
-  // Detect mobile state for slide calculations
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
+    if (isActive && !hasAnimated.current) {
+      hasAnimated.current = true;
 
-  // Listen to document theme mutations to toggle embedded Instagram theme
-  useEffect(() => {
-    const checkTheme = () => {
-      // Default to dark mode (true) unless document root explicitly has the 'light' class
-      setIsDarkMode(!document.documentElement.classList.contains("light"));
-    };
-
-    checkTheme();
-
-    const observer = new MutationObserver(checkTheme);
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Seamless scroll silent jump check after transitions finish
-  const handleTransitionEnd = () => {
-    if (instaIndex >= 8) {
-      setIsTransitioning(false);
-      setInstaIndex(3);
-    } else if (instaIndex <= 2) {
-      setIsTransitioning(false);
-      setInstaIndex(7);
-    }
-  };
-
-  // Re-enable transition effect in next paint loop
-  useEffect(() => {
-    if (!isTransitioning) {
-      // A double requestAnimationFrame guarantees the browser has painted the transitionless position
-      // before we re-enable transitions, completely preventing visual iframe jumps or flickers.
-      const handle = window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          setIsTransitioning(true);
-        });
+      // LinkedIn card slides in from left
+      animate(".social-linkedin-card", {
+        opacity: [0, 1],
+        translateX: [-60, 0],
+        duration: 700,
+        delay: 200,
+        ease: cubicBezier(0.25, 1, 0.5, 1),
       });
-      return () => window.cancelAnimationFrame(handle);
+
+      // Instagram cards staggered entrance
+      animate(".social-insta-card", {
+        opacity: [0, 1],
+        scale: [0.85, 1],
+        translateY: [40, 0],
+        duration: 600,
+        delay: (_el: Element, i: number) => 300 + i * 100,
+        ease: cubicBezier(0.34, 1.56, 0.64, 1),
+      });
+
+      // Bottom CTA fades up last
+      animate(".social-cta-pill", {
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 500,
+        delay: 900,
+        ease: cubicBezier(0.25, 1, 0.5, 1),
+      });
     }
-  }, [isTransitioning]);
-
-  // Infinite scroll handlers
-  const handlePrevInsta = () => {
-    if (!isTransitioning) return;
-    setInstaIndex((prev) => prev - 1);
-  };
-
-  const handleNextInsta = () => {
-    if (!isTransitioning) return;
-    setInstaIndex((prev) => prev + 1);
-  };
+  }, [isActive]);
 
   return (
-    <section id="socials" className="w-full h-full flex flex-col justify-between py-2">
-
-      <Container className="flex-grow flex flex-col justify-between max-h-[64vh]">
-        <div className="text-center mb-3">
+    <section ref={sectionRef} id="socials" className="w-full h-full flex flex-col justify-center py-2">
+      <Container className="flex flex-col h-full justify-center max-h-[62vh]">
+        {/* Header */}
+        <div className="text-center mb-4">
           <SectionLabel>Social Buzz</SectionLabel>
-          <SectionHeading className="mx-auto mb-3 text-2xl sm:text-3xl">
-            My <span className="text-accent">Socials</span> & Updates
+          <SectionHeading className="mx-auto text-xl sm:text-2xl">
+            <AnimeTextReveal
+              text="My Socials & Updates"
+              active={isActive}
+              mode="words"
+            />
           </SectionHeading>
+        </div>
 
-          {/* Tab Selector */}
-          <div className="inline-flex rounded-full bg-border/20 p-1 backdrop-blur-sm border border-border/50">
-            <button
-              onClick={() => setActiveTab("linkedin")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${activeTab === "linkedin"
-                ? "bg-accent text-white shadow-md shadow-accent/25"
-                : "text-text-secondary hover:text-accent cursor-pointer"
-                }`}
-            >
-              <BrandIcon name="linkedin" className="w-3.5 h-3.5" />
-              LINKEDIN UPDATE
-            </button>
-            <button
-              onClick={() => setActiveTab("instagram")}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${activeTab === "instagram"
-                ? "bg-accent text-white shadow-md shadow-accent/25"
-                : "text-text-secondary hover:text-accent cursor-pointer"
-                }`}
-            >
-              <BrandIcon name="instagram" className="w-3.5 h-3.5" />
-              INSTAGRAM POSTS
-            </button>
+        {/* Split Layout: LinkedIn (left) + Instagram Grid (right) */}
+        <div className="flex flex-col lg:flex-row gap-4 w-full max-w-4xl mx-auto flex-grow min-h-0">
+
+          {/* ─── LinkedIn Quote Card ─── */}
+          <div className="social-linkedin-card w-full lg:w-[38%] flex-shrink-0 opacity-0">
+            <GlassCard className="h-full flex flex-col justify-between p-4 border-border/40 hover:border-accent/30">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full border-2 border-accent/30 overflow-hidden bg-accent-subtle flex-shrink-0 relative">
+                    <Image src="/umer-avatar.png" alt="Umer Saiyad" fill sizes="48px" className="object-cover object-top" />
+                  </div>
+                  <div>
+                    <h4 className="font-display font-bold text-base text-text">Umer Saiyad</h4>
+                    <p className="text-[11px] text-text-secondary">Full Stack Developer</p>
+                  </div>
+                </div>
+
+                <blockquote className="text-sm text-text-secondary leading-relaxed mb-4 border-l-2 border-accent/40 pl-4 italic">
+                  &ldquo;Driven by building scalable web applications and seamless user experiences. Bridging clean frontend interfaces with robust backend architecture.&rdquo;
+                </blockquote>
+
+                {/* LinkedIn Post Image */}
+                <div className="w-full rounded-xl overflow-hidden border border-border/50 mb-4">
+                  <Image
+                    src="/Umer_Saiyad_techstack.png"
+                    alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js."
+                    width={800}
+                    height={400}
+                    loading="lazy"
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {["Next.js", "React", "Node.js", "PostgreSQL", "TypeScript"].map((tech) => (
+                    <span key={tech} className="text-[9px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 font-mono font-medium">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <a
+                href="https://www.linkedin.com/in/umer-saiyad-741710254/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-xs font-semibold text-white bg-[#0A66C2] hover:bg-[#004182] transition-colors duration-300 shadow-md"
+              >
+                <BrandIcon name="linkedin" className="w-4 h-4" />
+                Connect on LinkedIn
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </GlassCard>
+          </div>
+
+          {/* ─── Instagram Masonry Grid ─── */}
+          <div className="w-full lg:w-[62%] flex-grow min-h-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 h-full auto-rows-fr">
+              {instagramShortcodes.map((code, idx) => (
+                <a
+                  key={code}
+                  href={`https://www.instagram.com/p/${code}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`social-insta-card opacity-0 relative rounded-xl overflow-hidden border border-border/40 hover:border-accent/40 group transition-all duration-300 shadow-lg hover:shadow-accent/10 ${
+                    idx === 0 ? "row-span-2" : ""
+                  }`}
+                  style={{ minHeight: idx === 0 ? "100%" : "120px" }}
+                >
+                  <Image
+                    src={`/insta-${code}.jpg`}
+                    alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <BrandIcon name="instagram" className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Content Area - naturally scaling height */}
-        <div className="w-full max-w-5xl mx-auto flex items-start justify-center flex-grow h-auto min-h-[400px]">
-          <div className={activeTab === "linkedin" ? "w-full flex justify-center" : "hidden w-full flex justify-center"}>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full max-w-[800px] h-auto pb-4 px-2"
-            >
-              <div className="w-full bg-surface border border-border rounded-2xl p-4 shadow-xl flex flex-col md:flex-row gap-5 transition-colors duration-300">
-
-                {/* Left Column: Text and Header */}
-                <div className="flex-1 flex flex-col">
-                  {/* Card Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-full border border-accent/30 overflow-hidden bg-accent-subtle flex items-center justify-center flex-shrink-0 relative">
-                        <Image src="/umer-avatar.png" alt="Umer Saiyad Profile Avatar" fill sizes="40px" className="object-cover object-top" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-sm text-text flex items-center gap-1.5">
-                          Umer Saiyad
-                          <span className="bg-accent/15 text-accent text-[8px] px-1.5 py-0.5 rounded-full font-medium">Author</span>
-                        </h4>
-                        <p className="text-[9px] text-text-secondary leading-tight mt-0.5">Full Stack Developer Intern | MERN Stack | EnactOn Technologies | MCA Student</p>
-                        <p className="text-[8px] text-text-muted mt-0.5">2d • Edited • Public</p>
-                      </div>
-                    </div>
-                    <BrandIcon name="linkedin" className="w-5 h-5 text-accent hidden sm:block" />
-                  </div>
-
-                  {/* Primary Card Body */}
-                  <div className="text-[11px] leading-relaxed text-text flex flex-col justify-start">
-                    <p className="mb-1.5">Driven by building scalable web applications and seamless user experiences. 🚀</p>
-                    <p className="mb-2">As a Full Stack Web Developer, I focus on bridging the gap between clean, responsive frontend user interfaces and robust, high-performance backend architecture.</p>
-                    <p className="mb-1">Here is a look at my current core production tech stack:</p>
-                    <p className="mb-0.5">🔹 <span className="font-semibold">Frontend & Frameworks:</span> Next.js, React.js, JavaScript (ES6+), HTML5, CSS3</p>
-                    <p className="mb-0.5">🔹 <span className="font-semibold">Backend Ecosystem:</span> Node.js, Express.js, REST APIs, Type-Safe Development</p>
-                    <p className="mb-0">🔹 <span className="font-semibold">Database & ORM:</span> PostgreSQL, Drizzle ORM</p>
-                  </div>
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-center mt-7 ">
-                    <a
-                      href="https://www.linkedin.com/feed/update/urn:li:share:7462732694418817024"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-full text-[11px] font-semibold text-white bg-accent hover:bg-accent-hover shadow-md shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 cursor-pointer"
-                    >
-                      <span>Open Original LinkedIn Post</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Right Column: Full Size Image and Footer */}
-                <div className="w-full md:w-[320px] flex flex-col flex-shrink-0">
-                  <div className="w-full rounded-xl overflow-hidden border border-border/50 bg-black/5 mb-3 relative">
-                    <Image
-                      src="/Umer_Saiyad_techstack.png"
-                      alt="Umer Saiyad, Full Stack Developer from Surat, smiling in a white dress shirt with arms crossed, next to glowing digital panels showcasing Next.js, PostgreSQL, Drizzle ORM, and Node.js."
-                      width={800}
-                      height={400}
-                      loading="lazy"
-                      className="w-full h-auto object-cover"
-                    />
-                  </div>
-
-                  {/* Secondary Card Body (Footer Text) */}
-                  <div className="text-[11px] leading-relaxed text-text mb-3">
-                    <p className="mb-1.5">Always optimizing workflows, writing clean code, and exploring efficient data architectures. Let's connect!</p>
-                    <p className="text-accent text-[9px] leading-tight font-medium">#FullStackDeveloper #WebDevelopment #SoftwareEngineer #NextJS #PostgreSQL #DrizzleORM #NodeJS #ReactJS #MERN #UmerSaiyad #SuratTech #CodingLife</p>
-                  </div>
-
-
-                </div>
-
-              </div>
-            </motion.div>
-          </div>
-
-          <div className={activeTab === "instagram" ? "w-full h-full flex flex-col justify-between items-center" : "hidden w-full h-full flex flex-col justify-between items-center"}>
-            {/* Carousel slider displaying 3 beautiful height-increased theme-adaptive Instagram posts side-by-side on desktop, 1 on mobile */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full h-full flex flex-col justify-between items-center"
-            >
-              {/* Slider Body with Navigation Arrows */}
-              <div className="w-full flex items-center justify-between gap-3 flex-grow">
-                {/* Left Arrow Button */}
-                <button
-                  onClick={handlePrevInsta}
-                  className="w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center text-text-secondary hover:text-accent hover:border-accent transition-all shadow-sm cursor-pointer flex-shrink-0"
-                  aria-label="Previous Instagram Post"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-                {/* Viewport for sliding track */}
-                <div className="flex-grow overflow-hidden px-1 py-1">
-                  <div
-                    className={`flex ${isTransitioning ? "transition-transform duration-500 ease-out" : ""} gap-4`}
-                    onTransitionEnd={handleTransitionEnd}
-                    style={{
-                      transform: isMobile
-                        ? `translateX(calc(-${instaIndex} * (100% + 16px)))`
-                        : `translateX(calc(-${instaIndex} * (33.333% + 5.33px)))`,
-                    }}
-                  >
-                    {extendedPosts.map((code, idx) => {
-                      const locations: Record<string, string> = {
-                        "DXBwaGAjEDZ": "Uka Tarsadia University",
-                        "DWJ1lq5DKS2": "Kadod, Gujarat, India",
-                        "DT-CmqdjKJ-": "Kadod, Gujarat, India",
-                        "DNW6bFEI2qs": "Surat, Gujarat, India",
-                        "DEkiJrHSFJD": "Surat, Gujarat, India",
-                      };
-
-                      return (
-                        <div
-                          key={idx}
-                          className="flex-shrink-0 bg-card rounded-2xl border border-border flex flex-col overflow-hidden transition-all duration-300 shadow-xl group"
-                          style={{
-                            width: isMobile ? "100%" : "calc(33.333% - 11px)",
-                            height: "380px"
-                          }}
-                        >
-                          {/* Native Header */}
-                          <div className="flex items-center justify-between p-3 border-b border-border/50 bg-card">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full overflow-hidden border border-border/30 flex-shrink-0 bg-surface relative">
-                                <Image
-                                  src="/umer-avatar.png"
-                                  alt="Umer Saiyad Profile Avatar"
-                                  fill
-                                  sizes="32px"
-                                  className="object-cover object-top"
-                                />
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-[11px] font-semibold text-text leading-tight tracking-tight">the_umersaiyad</span>
-                                <span className="text-[9px] text-text-muted leading-tight">{locations[code] || "Gujarat, India"}</span>
-                              </div>
-                            </div>
-                            <a
-                              href={`https://www.instagram.com/p/${code}/`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="bg-[#0095f6] hover:bg-[#1877f2] text-white text-[10px] font-semibold px-3 py-1.5 rounded-md transition-colors"
-                            >
-                              Follow
-                            </a>
-                          </div>
-
-                          {/* Image Container with Carousel Indicator */}
-                          <a
-                            href={`https://www.instagram.com/p/${code}/`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-grow w-full bg-surface relative overflow-hidden flex items-center justify-center block cursor-pointer group"
-                            aria-label={`View full carousel for ${instaAltTexts[code] || 'Instagram post'}`}
-                          >
-                            <Image
-                              src={`/insta-${code}.jpg`}
-                              alt={instaAltTexts[code] || "Umer Saiyad Instagram Post"}
-                              fill
-                              loading="lazy"
-                              sizes="(max-width: 768px) 100vw, 33vw"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            {/* Instagram Carousel Icon overlay */}
-                            <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm p-1.5 rounded-md shadow-sm">
-                              <svg aria-label="Carousel" className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 48 48">
-                                <path d="M34.8 29.7V11c0-2.9-2.3-5.2-5.2-5.2H11c-2.9 0-5.2 2.3-5.2 5.2v18.7c0 2.9 2.3 5.2 5.2 5.2h18.7c2.8-.1 5.1-2.4 5.1-5.2zM39.2 15v16.1c0 4.5-3.7 8.2-8.2 8.2H14.9c-.6 0-.9.7-.5 1.1 1.6 1.5 3.7 2.4 6 2.4h16.1c4.5 0 8.2-3.7 8.2-8.2V19.5c0-2.3-.9-4.4-2.4-6-.4-.4-1.1-.1-1.1.5z"></path>
-                              </svg>
-                            </div>
-                          </a>
-
-                          {/* Native Footer */}
-                          <div className="p-3 border-t border-border/50 bg-card flex items-center justify-between">
-                            <a
-                              href={`https://www.instagram.com/p/${code}/`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[11px] font-semibold text-text hover:text-accent transition-colors flex items-center gap-1.5"
-                            >
-                              View full post on Instagram
-                            </a>
-                            <div className="flex items-center gap-2">
-                              <BrandIcon name="instagram" className="w-4 h-4 text-text-muted" />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right Arrow Button */}
-                <button
-                  onClick={handleNextInsta}
-                  className="w-9 h-9 rounded-full border border-border bg-card flex items-center justify-center text-text-secondary hover:text-accent hover:border-accent transition-all shadow-sm cursor-pointer flex-shrink-0"
-                  aria-label="Next Instagram Post"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Navigation Pager Dots */}
-              <div className="flex justify-center items-center gap-2 mt-3 pb-1">
-                {instagramShortcodes.map((_, idx) => {
-                  const activeDot = (instaIndex - 3 + instagramShortcodes.length) % instagramShortcodes.length;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        if (!isTransitioning) return;
-                        setInstaIndex(idx + 3);
-                      }}
-                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${activeDot === idx
-                        ? "w-6 bg-accent"
-                        : "w-2 bg-text-muted/30 hover:bg-accent/40"
-                        }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  );
-                })}
-              </div>
-            </motion.div>
-          </div>
+        {/* ─── Bottom CTA Pill ─── */}
+        <div className="social-cta-pill opacity-0 flex justify-center mt-3">
+          <a
+            href="https://www.instagram.com/the_umersaiyad/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-surface border border-border/50 hover:border-accent/40 text-sm text-text-secondary hover:text-accent transition-all duration-300 shadow-md hover:shadow-accent/10"
+          >
+            <BrandIcon name="instagram" className="w-4 h-4" />
+            <span className="font-medium">@the_umersaiyad</span>
+            <span className="text-text-muted">•</span>
+            <span className="text-accent font-semibold text-xs">Follow on Instagram →</span>
+          </a>
         </div>
       </Container>
     </section>
@@ -1119,28 +1088,41 @@ function Socials() {
 
 // ─── Process ─────────────────────────────────────────────────────────────────
 
-function Process() {
+function Process({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+
+  useEffect(() => {
+    if (active) {
+      // Immediately reset scroll to top
+      const container = sectionRef.current?.closest(".section-scroll-container") as HTMLElement | null;
+      if (container) {
+        container.scrollTop = 0;
+      }
+      // Also reset after a frame in case layout hasn't settled
+      requestAnimationFrame(() => {
+        if (container) {
+          container.scrollTop = 0;
+        }
+      });
+    }
+  }, [active]);
+
   return (
-    <div id="process">
+    <div ref={sectionRef} id="process">
       <Container>
-        <div className="text-center mb-16">
-          <SectionLabel>How I Work</SectionLabel>
+        <div className="text-center mb-10 py-4">
+          <SectionLabel>My Journey</SectionLabel>
           <SectionHeading className="mx-auto">
-            My <span className="text-accent">Process</span>
+            <AnimeTextReveal
+              text="Education & Experience"
+              active={isActive}
+              mode="words"
+            />
           </SectionHeading>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {processSteps.map((step) => (
-            <GlassCard key={step.step} className="h-full relative">
-              <div className="w-12 h-12 rounded-2xl bg-accent-subtle flex items-center justify-center mb-5">
-                <span className="font-display font-bold text-accent">{step.step}</span>
-              </div>
-              <h3 className="font-display font-semibold text-lg mb-3">{step.title}</h3>
-              <p className="text-sm text-text-secondary leading-relaxed">{step.description}</p>
-            </GlassCard>
-          ))}
-        </div>
+        <TimeTravelTimeline active={active} />
       </Container>
     </div>
   );
@@ -1149,15 +1131,22 @@ function Process() {
 
 // ─── Contact ─────────────────────────────────────────────────────────────────
 
-function Contact() {
+function Contact({ active }: { active?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isActive = useAnimateActive(sectionRef, active);
+
   return (
-    <section id="contact" className="h-full flex items-center">
+    <section ref={sectionRef} id="contact" className="h-full flex items-center">
       <Container>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <SectionLabel>Get In Touch</SectionLabel>
             <SectionHeading>
-              Let&apos;s work <span className="text-accent">together</span>
+              <AnimeTextReveal
+                text="Let's work together"
+                active={isActive}
+                mode="words"
+              />
             </SectionHeading>
             <p className="text-text-secondary mt-6 mb-8 max-w-md">
               Have a project in mind? I&apos;d love to hear about it. Let&apos;s discuss how we can
@@ -1304,42 +1293,71 @@ function FooterSection() {
 // ─── Scroll Progress Bar ─────────────────────────────────────────────────────
 
 function ScrollProgress() {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (barRef.current) {
+      barRef.current.style.transform = "scaleX(0)";
+    }
+
     const unsubscribe = scrollController.subscribe(() => {
-      setProgress(scrollController.currentPage / (scrollController.totalPages - 1));
+      const targetProgress = scrollController.currentPage / (scrollController.totalPages - 1);
+      if (barRef.current) {
+        animate(barRef.current, {
+          scaleX: targetProgress,
+          duration: 350,
+          ease: cubicBezier(0.32, 0.72, 0, 1),
+        });
+      }
     });
     return unsubscribe;
   }, []);
 
   return (
-    <motion.div
-      className="fixed top-0 left-0 right-0 h-[3px] bg-accent origin-left z-[100]"
-      animate={{ scaleX: progress }}
-      transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-    />
+    <div className="fixed top-0 left-0 right-0 h-[3px] bg-border z-[100]">
+      <div
+        ref={barRef}
+        className="h-full origin-left w-full"
+        style={{
+          background: "linear-gradient(to right, #10b981, #06b6d4, #3b82f6)",
+          boxShadow: "0 0 8px rgba(16, 185, 129, 0.5), 0 0 15px rgba(6, 182, 212, 0.3)",
+          transform: "scaleX(0)",
+          willChange: "transform",
+        }}
+      />
+    </div>
   );
 }
 
 function MobileScrollProgress() {
-  const [progress, setProgress] = useState(0);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(docHeight > 0 ? scrollTop / docHeight : 0);
+      const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+      if (barRef.current) {
+        barRef.current.style.transform = `scaleX(${progress})`;
+      }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div
-      className="fixed top-0 left-0 h-[3px] bg-accent z-[100]"
-      style={{ width: `${progress * 100}%`, transition: "width 0.1s linear" }}
-    />
+    <div className="fixed top-0 left-0 right-0 h-[3px] bg-border z-[100]">
+      <div
+        ref={barRef}
+        className="h-full origin-left w-full"
+        style={{
+          background: "linear-gradient(to right, #10b981, #06b6d4, #3b82f6)",
+          boxShadow: "0 0 8px rgba(16, 185, 129, 0.5), 0 0 15px rgba(6, 182, 212, 0.3)",
+          transform: "scaleX(0)",
+          willChange: "transform",
+        }}
+      />
+    </div>
   );
 }
 
@@ -1405,6 +1423,7 @@ function SectionDots() {
             cx={svgWidth / 2}
             r={7}
             fill="#10b981"
+            initial={{ cy: 5 + active * gap + dotSize / 2 }}
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
           />
@@ -1412,6 +1431,7 @@ function SectionDots() {
             cx={svgWidth / 2}
             r={6}
             fill="#10b981"
+            initial={{ cy: 5 + active * gap + dotSize / 2 }}
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
             transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
           />
@@ -1419,6 +1439,7 @@ function SectionDots() {
             cx={svgWidth / 2}
             r={7}
             fill="#10b981"
+            initial={{ cy: 5 + active * gap + dotSize / 2 }}
             animate={{ cy: 5 + active * gap + dotSize / 2 }}
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
           />
@@ -1447,12 +1468,13 @@ function SectionDots() {
 // ─── Card Sections Array ─────────────────────────────────────────────────────
 
 const cardSections = [About, Services, Projects, Skills, Socials, Process];
-
-// ─── Main App (Fullpage Scroll Controller) ───────────────────────────────────
-
 export function PortfolioApp() {
   const [currentPage, setCurrentPage] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+
+  const isScrollingActive = useRef(false);
+  const wheelEndTimer = useRef<NodeJS.Timeout | null>(null);
+  const gestureStartedAtBoundary = useRef<"top" | "bottom" | null>(null);
 
   // Detect mobile
   useEffect(() => {
@@ -1470,28 +1492,147 @@ export function PortfolioApp() {
     return unsubscribe;
   }, []);
 
-  // Global wheel handler — prevents ALL default scrolling (desktop only)
+  // Reset scroll containers to top whenever page changes on desktop
+  useEffect(() => {
+    if (isMobile) return;
+    const containers = document.querySelectorAll(".section-scroll-container");
+    containers.forEach((container) => {
+      (container as HTMLElement).scrollTop = 0;
+    });
+    // Double rAF to ensure layout is settled before final reset
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        containers.forEach((container) => {
+          (container as HTMLElement).scrollTop = 0;
+        });
+      });
+    });
+  }, [currentPage, isMobile]);
+
   useEffect(() => {
     if (isMobile) return;
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+
+      const container = document.querySelector(".active-scroll-container") as HTMLElement;
+
+      // Track continuous scrolling gestures
+      if (!isScrollingActive.current) {
+        isScrollingActive.current = true;
+        // Determine if we started at a boundary when the gesture began
+        if (container) {
+          const { scrollTop, scrollHeight, clientHeight } = container;
+          const isScrollable = scrollHeight > clientHeight + 10;
+          if (isScrollable) {
+            if (scrollTop + clientHeight >= scrollHeight - 20) {
+              gestureStartedAtBoundary.current = "bottom";
+            } else if (scrollTop <= 20) {
+              gestureStartedAtBoundary.current = "top";
+            } else {
+              gestureStartedAtBoundary.current = null;
+            }
+          } else {
+            // Not scrollable, so it's always at the boundary
+            gestureStartedAtBoundary.current = "bottom"; // Treat as ready to transition
+          }
+        } else {
+          gestureStartedAtBoundary.current = "bottom";
+        }
+      }
+
+      if (wheelEndTimer.current) clearTimeout(wheelEndTimer.current);
+      wheelEndTimer.current = setTimeout(() => {
+        isScrollingActive.current = false;
+        gestureStartedAtBoundary.current = null;
+      }, 150);
+
+      if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        const isScrollable = scrollHeight > clientHeight + 10;
+
+        if (isScrollable) {
+          if (e.deltaY > 0) {
+            // User scrolls down: if there is more content underneath, scroll inside container
+            if (scrollTop + clientHeight < scrollHeight - 20) {
+              container.scrollTop += e.deltaY;
+              return;
+            } else {
+              // We are at the bottom boundary.
+              // If the gesture started when we were ALREADY at the bottom, transition to next page
+              if (gestureStartedAtBoundary.current === "bottom") {
+                // To avoid double-transitioning on rapid successive ticks, clear boundary state immediately
+                gestureStartedAtBoundary.current = null;
+                scrollController.next();
+                return;
+              } else {
+                // Just hit the bottom boundary: snap to bottom and lock transition for the rest of this gesture
+                container.scrollTop = scrollHeight - clientHeight;
+                return;
+              }
+            }
+          } else if (e.deltaY < 0) {
+            // User scrolls up: if we are not at the absolute top, scroll inside container
+            if (scrollTop > 20) {
+              container.scrollTop += e.deltaY;
+              return;
+            } else {
+              // We are at the top boundary.
+              // If the gesture started when we were ALREADY at the top, transition to previous page
+              if (gestureStartedAtBoundary.current === "top") {
+                gestureStartedAtBoundary.current = null;
+                scrollController.prev();
+                return;
+              } else {
+                // Just hit the top boundary: snap to top and lock transition for the rest of this gesture
+                container.scrollTop = 0;
+                return;
+              }
+            }
+          }
+        }
+      }
+
+      // If container is not scrollable (or doesn't exist), transition immediately based on scroll direction
       if (e.deltaY > 0) {
         scrollController.next();
       } else if (e.deltaY < 0) {
         scrollController.prev();
       }
     };
+
     window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      if (wheelEndTimer.current) clearTimeout(wheelEndTimer.current);
+    };
   }, [isMobile]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const container = document.querySelector(".active-scroll-container") as HTMLElement;
+      const step = 50; // Speed of keyboard scroll
+
       if (e.key === "ArrowDown" || e.key === "PageDown") {
+        if (container) {
+          const { scrollTop, scrollHeight, clientHeight } = container;
+          if (scrollTop + clientHeight < scrollHeight - 15) {
+            container.scrollTop += step;
+            e.preventDefault();
+            return;
+          }
+        }
         e.preventDefault();
         scrollController.next();
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        if (container) {
+          const { scrollTop } = container;
+          if (scrollTop > 15) {
+            container.scrollTop -= step;
+            e.preventDefault();
+            return;
+          }
+        }
         e.preventDefault();
         scrollController.prev();
       } else if (e.key === "Home") {
@@ -1539,12 +1680,12 @@ export function PortfolioApp() {
   // Determine what to show
   const isHero = currentPage === 0;
   const isContact = currentPage === 7;
-  const cardIndex = currentPage >= 1 && currentPage <= 6 ? currentPage - 1 : -1;
 
   // Mobile: normal scrollable layout (no fullpage controller)
   if (isMobile) {
     return (
-      <>
+      <div className="overflow-x-hidden">
+        <CustomCursor />
         <MobileScrollProgress />
         <Header />
         <main className="pt-25">
@@ -1574,68 +1715,95 @@ export function PortfolioApp() {
           </div>
         </footer>
         <ScrollToTopButton />
-      </>
+      </div>
     );
   }
 
+  // Card wrapper offset
+  let cardWrapperY = 0;
+  if (currentPage === 0) {
+    cardWrapperY = 100;
+  } else if (currentPage === 7) {
+    cardWrapperY = -100;
+  }
+
+  // Contact offset
+  const contactY = currentPage === 7 ? 0 : 100;
+
+  // Hero offset
+  const heroY = currentPage === 0 ? 0 : -100;
+
   return (
     <>
+      <CustomCursor />
       <ScrollProgress />
       <SectionDots />
       <Header />
       <div className="h-screen h-dvh overflow-hidden relative pointer-events-none">
         {/* Hero */}
-        <motion.div
+        <div
           className={`absolute inset-0 ${isHero ? "pointer-events-auto" : "pointer-events-none"}`}
-          animate={{ y: isHero ? "0%" : "-100%" }}
-          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          style={{
+            transform: `translateY(${heroY}%)`,
+            transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "transform",
+          }}
         >
-          <Hero />
-        </motion.div>
+          <Hero active={isHero} />
+        </div>
 
         {/* Card with sections */}
-        <motion.div
+        <div
           className={`absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-8 ${!isHero && !isContact ? "pointer-events-auto" : "pointer-events-none"}`}
-          animate={{
-            y: isHero ? "100%" : isContact ? "-100%" : "0%",
+          style={{
+            transform: `translateY(${cardWrapperY}%)`,
+            transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "transform",
           }}
-          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
         >
-          <GlowCardWrapper className="w-full max-w-7xl relative">
-            <div className="relative overflow-hidden" style={{ height: "75vh" }}>
+          <GlowCardWrapper className="w-full max-w-7xl relative hide-scrollbar">
+            <div className="relative overflow-hidden hide-scrollbar" style={{ height: "75vh" }}>
               {cardSections.map((Section, index) => {
-                const offset = index - cardIndex;
-                // Only render active + neighbors for performance
-                if (Math.abs(offset) > 1) return null;
+                const targetCardIndex = currentPage - 1;
+                const offset = index - targetCardIndex;
+
+                  // Render active + neighbors for a smooth sliding transition
+                if (Math.abs(offset) > 1.2) return null;
+                const opacity = index === targetCardIndex ? 1 : 0;
+
                 return (
-                  <motion.div
+                  <div
                     key={index}
                     className="absolute inset-0 flex items-center justify-center p-6 sm:p-10 lg:p-14"
-                    animate={{
-                      y: `${offset * 100}%`,
-                      opacity: offset === 0 ? 1 : 0,
+                    style={{
+                      transform: `translateY(${offset * 100}%)`,
+                      opacity: opacity,
+                      transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+                      willChange: "transform, opacity",
                     }}
-                    transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
                   >
-                    <div className="w-full overflow-y-auto max-h-full">
-                      <Section />
+                    <div className={`w-full overflow-y-auto max-h-full hide-scrollbar section-scroll-container ${index === targetCardIndex ? "active-scroll-container" : ""}`}>
+                      <Section active={index === targetCardIndex} />
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
           </GlowCardWrapper>
-        </motion.div>
+        </div>
 
         {/* Contact */}
-        <motion.div
+        <div
           className={`absolute inset-0 ${isContact ? "pointer-events-auto" : "pointer-events-none"}`}
-          animate={{ y: isContact ? "0%" : "100%" }}
-          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+          style={{
+            transform: `translateY(${contactY}%)`,
+            transition: "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+            willChange: "transform",
+          }}
         >
-          <Contact />
+          <Contact active={isContact} />
           <FooterSection />
-        </motion.div>
+        </div>
       </div>
     </>
   );

@@ -12,7 +12,7 @@ class ScrollController {
     this.cooldown = true;
     this.currentPage++;
     this.notify();
-    setTimeout(() => { this.cooldown = false; }, 550);
+    setTimeout(() => { this.cooldown = false; }, 420);
   }
 
   prev() {
@@ -20,7 +20,7 @@ class ScrollController {
     this.cooldown = true;
     this.currentPage--;
     this.notify();
-    setTimeout(() => { this.cooldown = false; }, 550);
+    setTimeout(() => { this.cooldown = false; }, 420);
   }
 
   goTo(page: number) {
@@ -28,7 +28,7 @@ class ScrollController {
     this.cooldown = true;
     this.currentPage = page;
     this.notify();
-    setTimeout(() => { this.cooldown = false; }, 550);
+    setTimeout(() => { this.cooldown = false; }, 420);
   }
 
   notify() {
