@@ -14,7 +14,7 @@ export function CustomCursor() {
     hoveredType: null as string | null,
     cursorText: "",
     isClicked: false,
-    magneticRect: null as DOMRect | null,
+    magneticElement: null as HTMLElement | null,
   });
 
   // Core coordinates
@@ -33,11 +33,13 @@ export function CustomCursor() {
     const onMouseMove = (e: MouseEvent) => {
       mousePos.current.x = e.clientX;
       mousePos.current.y = e.clientY;
+    };
 
+    const onMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target) return;
 
-      // Detect hover zones
+      // Detect hover zones only when entering new elements
       const cursorEl = target.closest("[data-cursor]") as HTMLElement;
       const magneticEl = target.closest("[data-magnetic]") as HTMLElement;
       const interactiveEl = target.closest("a, button, [role='button']") as HTMLElement;
@@ -55,11 +57,11 @@ export function CustomCursor() {
       }
 
       if (magneticEl) {
-        stateRef.current.magneticRect = magneticEl.getBoundingClientRect();
+        stateRef.current.magneticElement = magneticEl;
       } else if (interactiveEl && stateRef.current.hoveredType === "magnetic") {
-        stateRef.current.magneticRect = interactiveEl.getBoundingClientRect();
+        stateRef.current.magneticElement = interactiveEl;
       } else {
-        stateRef.current.magneticRect = null;
+        stateRef.current.magneticElement = null;
       }
     };
 
@@ -69,6 +71,7 @@ export function CustomCursor() {
     const onMouseEnterDoc = () => setIsVisible(true);
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mouseover", onMouseOver, { passive: true });
     window.addEventListener("mousedown", onMouseDown, { passive: true });
     window.addEventListener("mouseup", onMouseUp, { passive: true });
     document.addEventListener("mouseleave", onMouseLeaveDoc);
@@ -77,7 +80,8 @@ export function CustomCursor() {
     // Single animation loop — never recreated
     let frameId: number;
     const update = () => {
-      const { hoveredType, isClicked, magneticRect, cursorText } = stateRef.current;
+      const { hoveredType, isClicked, magneticElement, cursorText } = stateRef.current;
+      const magneticRect = magneticElement ? magneticElement.getBoundingClientRect() : null;
 
       // 1. Core Dot: tight, immediate spring
       dotPos.current.x += (mousePos.current.x - dotPos.current.x) * 0.4;

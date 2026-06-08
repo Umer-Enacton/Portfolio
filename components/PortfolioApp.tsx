@@ -151,18 +151,32 @@ function PremiumButton({
   icon?: "arrow" | "download";
 }) {
   const btnRef = useRef<HTMLAnchorElement & HTMLButtonElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!btnRef.current) return;
-    const rect = btnRef.current.getBoundingClientRect();
-    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.38;
-    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.38;
-    // Direct DOM update — zero re-renders
-    btnRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    btnRef.current.style.transition = "none";
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (rafRef.current) return;
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (!btnRef.current) return;
+      const rect = btnRef.current.getBoundingClientRect();
+      const x = (clientX - (rect.left + rect.width / 2)) * 0.38;
+      const y = (clientY - (rect.top + rect.height / 2)) * 0.38;
+      // Direct DOM update — zero re-renders
+      btnRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      btnRef.current.style.transition = "none";
+    });
   };
 
   const handleMouseLeave = () => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     if (!btnRef.current) return;
     btnRef.current.style.transform = "translate3d(0px, 0px, 0)";
     btnRef.current.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
@@ -236,22 +250,36 @@ function GlassCard({
 }: GlassCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glareRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hover || !cardRef.current || !glareRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const gX = ((e.clientX - rect.left) / rect.width) * 100;
-    const gY = ((e.clientY - rect.top) / rect.height) * 100;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
 
-    // Direct DOM update — zero React re-renders
-    glareRef.current.style.opacity = "0.08";
-    glareRef.current.style.background = `radial-gradient(circle at ${gX}% ${gY}%, rgba(255, 255, 255, 0.75) 0%, transparent 60%)`;
-    cardRef.current.style.boxShadow = "0 20px 45px rgba(16, 185, 129, 0.05)";
+    if (rafRef.current) return;
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (!cardRef.current || !glareRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      const gX = ((clientX - rect.left) / rect.width) * 100;
+      const gY = ((clientY - rect.top) / rect.height) * 100;
+
+      // Direct DOM update — zero React re-renders
+      glareRef.current.style.opacity = "0.08";
+      glareRef.current.style.background = `radial-gradient(circle at ${gX}% ${gY}%, rgba(255, 255, 255, 0.75) 0%, transparent 60%)`;
+      cardRef.current.style.boxShadow = "0 20px 45px rgba(16, 185, 129, 0.05)";
+    });
 
     if (onMouseMove) onMouseMove(e);
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
     if (glareRef.current) glareRef.current.style.opacity = "0";
     if (cardRef.current) cardRef.current.style.boxShadow = "none";
     if (onMouseLeave) onMouseLeave(e);
@@ -618,6 +646,101 @@ function About({ active }: { active?: boolean }) {
 
 // ─── Services ────────────────────────────────────────────────────────────────
 
+const servicesData = [
+  {
+    step: "01",
+    shortTitle: "FRONTEND",
+    title: "Frontend Engineering",
+    description: "Crafting high-performance, accessible, and hyper-interactive user interfaces using modern web technologies.",
+    icon: Code2,
+    accentColor: "#00ffcc",
+    widget: (
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {["React", "Next.js", "TypeScript", "Tailwind", "Framer Motion", "Three.js"].map((t) => (
+          <span key={t} className="px-2 py-0.5 text-[9px] font-mono font-bold rounded-full border border-accent/30 text-accent bg-accent/5 tracking-wide">
+            {t}
+          </span>
+        ))}
+      </div>
+    ),
+  },
+  {
+    step: "02",
+    shortTitle: "BACKEND",
+    title: "Backend Architecture",
+    description: "Designing scalable microservices, secure RESTful APIs, and optimizing complex database queries.",
+    icon: Layers3,
+    accentColor: "#a78bfa",
+    widget: (
+      <div className="flex flex-col gap-1.5 mt-1">
+        {[
+          { method: "GET", path: "/api/users", status: "200", ms: "12ms" },
+          { method: "POST", path: "/api/auth/login", status: "201", ms: "45ms" },
+          { method: "GET", path: "/api/projects", status: "200", ms: "8ms" },
+        ].map((ep) => (
+          <div key={ep.path} className="flex items-center gap-2 font-mono text-[9px]">
+            <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-accent/15 text-accent tracking-wider">{ep.method}</span>
+            <span className="text-text-secondary flex-1 truncate">{ep.path}</span>
+            <span className="text-green-400 font-bold">{ep.status}</span>
+            <span className="text-text-muted">{ep.ms}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    step: "03",
+    shortTitle: "UI/UX DESIGN",
+    title: "UI/UX Design",
+    description: "Translating user needs into beautiful, intuitive, and highly functional wireframes and design systems.",
+    icon: Palette,
+    accentColor: "#f472b6",
+    widget: (
+      <div className="mt-1 space-y-2 w-full">
+        <div className="flex gap-3 justify-center w-full">
+          {["#0d0d12", "#1a1a2e", "#00ffcc", "#a78bfa", "#f472b6", "#ffffff"].map((c) => (
+            <div
+              key={c}
+              className="w-6 h-6 rounded-md border border-white/10 transition-transform hover:scale-110"
+              style={{ background: c }}
+              title={c}
+            />
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-1 flex-1 rounded-full bg-gradient-to-r from-accent via-purple-400 to-pink-400 opacity-60" />
+          <span className="text-[8px] font-mono text-text-muted uppercase tracking-widest">Design Tokens</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    step: "04",
+    shortTitle: "DEVOPS",
+    title: "Cloud & DevOps",
+    description: "Automating CI/CD pipelines and orchestrating containerized deployments across AWS and Vercel.",
+    icon: MonitorSmartphone,
+    accentColor: "#facc15",
+    widget: (
+      <div className="flex items-center gap-1 mt-1 overflow-hidden">
+        {["Build", "Test", "Stage", "Deploy"].map((stage, i) => (
+          <React.Fragment key={stage}>
+            <div className="flex flex-col items-center gap-0.5 w-full">
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-[9px] font-black font-mono border ${
+                i <= 2 ? "border-green-400/40 bg-green-400/10 text-green-400" : "border-accent/40 bg-accent/10 text-accent animate-pulse"
+              }`}>
+                {i <= 2 ? "✓" : "▸"}
+              </div>
+              <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">{stage}</span>
+            </div>
+            {i < 3 && <div className={`w-4 h-px mt-[-10px] ${i <= 1 ? "bg-green-400/40" : "bg-border"}`} />}
+          </React.Fragment>
+        ))}
+      </div>
+    ),
+  },
+];
+
 function Services({ active }: { active?: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const isActive = useAnimateActive(sectionRef, active);
@@ -632,100 +755,7 @@ function Services({ active }: { active?: boolean }) {
     }
   }, [active]);
 
-  const servicesData = [
-    {
-      step: "01",
-      shortTitle: "FRONTEND",
-      title: "Frontend Engineering",
-      description: "Crafting high-performance, accessible, and hyper-interactive user interfaces using modern web technologies.",
-      icon: Code2,
-      accentColor: "#00ffcc",
-      widget: (
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {["React", "Next.js", "TypeScript", "Tailwind", "Framer Motion", "Three.js"].map((t) => (
-            <span key={t} className="px-2 py-0.5 text-[9px] font-mono font-bold rounded-full border border-accent/30 text-accent bg-accent/5 tracking-wide">
-              {t}
-            </span>
-          ))}
-        </div>
-      ),
-    },
-    {
-      step: "02",
-      shortTitle: "BACKEND",
-      title: "Backend Architecture",
-      description: "Designing scalable microservices, secure RESTful APIs, and optimizing complex database queries.",
-      icon: Layers3,
-      accentColor: "#a78bfa",
-      widget: (
-        <div className="flex flex-col gap-1.5 mt-1">
-          {[
-            { method: "GET", path: "/api/users", status: "200", ms: "12ms" },
-            { method: "POST", path: "/api/auth/login", status: "201", ms: "45ms" },
-            { method: "GET", path: "/api/projects", status: "200", ms: "8ms" },
-          ].map((ep) => (
-            <div key={ep.path} className="flex items-center gap-2 font-mono text-[9px]">
-              <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-accent/15 text-accent tracking-wider">{ep.method}</span>
-              <span className="text-text-secondary flex-1 truncate">{ep.path}</span>
-              <span className="text-green-400 font-bold">{ep.status}</span>
-              <span className="text-text-muted">{ep.ms}</span>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      step: "03",
-      shortTitle: "UI/UX DESIGN",
-      title: "UI/UX Design",
-      description: "Translating user needs into beautiful, intuitive, and highly functional wireframes and design systems.",
-      icon: Palette,
-      accentColor: "#f472b6",
-      widget: (
-        <div className="mt-1 space-y-2 w-full">
-          <div className="flex gap-3 justify-center w-full">
-            {["#0d0d12", "#1a1a2e", "#00ffcc", "#a78bfa", "#f472b6", "#ffffff"].map((c) => (
-              <div
-                key={c}
-                className="w-6 h-6 rounded-md border border-white/10 transition-transform hover:scale-110"
-                style={{ background: c }}
-                title={c}
-              />
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-1 flex-1 rounded-full bg-gradient-to-r from-accent via-purple-400 to-pink-400 opacity-60" />
-            <span className="text-[8px] font-mono text-text-muted uppercase tracking-widest">Design Tokens</span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      step: "04",
-      shortTitle: "DEVOPS",
-      title: "Cloud & DevOps",
-      description: "Automating CI/CD pipelines and orchestrating containerized deployments across AWS and Vercel.",
-      icon: MonitorSmartphone,
-      accentColor: "#facc15",
-      widget: (
-        <div className="flex items-center gap-1 mt-1 overflow-hidden">
-          {["Build", "Test", "Stage", "Deploy"].map((stage, i) => (
-            <React.Fragment key={stage}>
-              <div className="flex flex-col items-center gap-0.5 w-full">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-[9px] font-black font-mono border ${
-                  i <= 2 ? "border-green-400/40 bg-green-400/10 text-green-400" : "border-accent/40 bg-accent/10 text-accent animate-pulse"
-                }`}>
-                  {i <= 2 ? "✓" : "▸"}
-                </div>
-                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">{stage}</span>
-              </div>
-              {i < 3 && <div className={`w-4 h-px mt-[-10px] ${i <= 1 ? "bg-green-400/40" : "bg-border"}`} />}
-            </React.Fragment>
-          ))}
-        </div>
-      ),
-    },
-  ];
+
 
   return (
     <section ref={sectionRef} id="services">
@@ -1472,9 +1502,8 @@ export function PortfolioApp() {
   const [currentPage, setCurrentPage] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  const isScrollingActive = useRef(false);
   const wheelEndTimer = useRef<NodeJS.Timeout | null>(null);
-  const gestureStartedAtBoundary = useRef<"top" | "bottom" | null>(null);
+  const accumulatedDelta = useRef(0);
 
   // Detect mobile
   useEffect(() => {
@@ -1516,34 +1545,9 @@ export function PortfolioApp() {
 
       const container = document.querySelector(".active-scroll-container") as HTMLElement;
 
-      // Track continuous scrolling gestures
-      if (!isScrollingActive.current) {
-        isScrollingActive.current = true;
-        // Determine if we started at a boundary when the gesture began
-        if (container) {
-          const { scrollTop, scrollHeight, clientHeight } = container;
-          const isScrollable = scrollHeight > clientHeight + 10;
-          if (isScrollable) {
-            if (scrollTop + clientHeight >= scrollHeight - 20) {
-              gestureStartedAtBoundary.current = "bottom";
-            } else if (scrollTop <= 20) {
-              gestureStartedAtBoundary.current = "top";
-            } else {
-              gestureStartedAtBoundary.current = null;
-            }
-          } else {
-            // Not scrollable, so it's always at the boundary
-            gestureStartedAtBoundary.current = "bottom"; // Treat as ready to transition
-          }
-        } else {
-          gestureStartedAtBoundary.current = "bottom";
-        }
-      }
-
       if (wheelEndTimer.current) clearTimeout(wheelEndTimer.current);
       wheelEndTimer.current = setTimeout(() => {
-        isScrollingActive.current = false;
-        gestureStartedAtBoundary.current = null;
+        accumulatedDelta.current = 0;
       }, 150);
 
       if (container) {
@@ -1553,50 +1557,55 @@ export function PortfolioApp() {
         if (isScrollable) {
           if (e.deltaY > 0) {
             // User scrolls down: if there is more content underneath, scroll inside container
-            if (scrollTop + clientHeight < scrollHeight - 20) {
+            if (scrollTop + clientHeight < scrollHeight - 5) {
               container.scrollTop += e.deltaY;
+              accumulatedDelta.current = 0;
               return;
             } else {
-              // We are at the bottom boundary.
-              // If the gesture started when we were ALREADY at the bottom, transition to next page
-              if (gestureStartedAtBoundary.current === "bottom") {
-                // To avoid double-transitioning on rapid successive ticks, clear boundary state immediately
-                gestureStartedAtBoundary.current = null;
+              // At bottom boundary: accumulate delta to prevent trackpad getting stuck
+              accumulatedDelta.current += e.deltaY;
+              if (accumulatedDelta.current > 60) {
+                accumulatedDelta.current = 0;
                 scrollController.next();
-                return;
               } else {
-                // Just hit the bottom boundary: snap to bottom and lock transition for the rest of this gesture
                 container.scrollTop = scrollHeight - clientHeight;
-                return;
               }
+              return;
             }
           } else if (e.deltaY < 0) {
             // User scrolls up: if we are not at the absolute top, scroll inside container
-            if (scrollTop > 20) {
+            if (scrollTop > 5) {
               container.scrollTop += e.deltaY;
+              accumulatedDelta.current = 0;
               return;
             } else {
-              // We are at the top boundary.
-              // If the gesture started when we were ALREADY at the top, transition to previous page
-              if (gestureStartedAtBoundary.current === "top") {
-                gestureStartedAtBoundary.current = null;
+              // At top boundary
+              accumulatedDelta.current += e.deltaY;
+              if (accumulatedDelta.current < -60) {
+                accumulatedDelta.current = 0;
                 scrollController.prev();
-                return;
               } else {
-                // Just hit the top boundary: snap to top and lock transition for the rest of this gesture
                 container.scrollTop = 0;
-                return;
               }
+              return;
             }
           }
         }
       }
 
-      // If container is not scrollable (or doesn't exist), transition immediately based on scroll direction
+      // If container is not scrollable (or doesn't exist), transition based on accumulated delta
       if (e.deltaY > 0) {
-        scrollController.next();
+        accumulatedDelta.current += e.deltaY;
+        if (accumulatedDelta.current > 60) {
+          accumulatedDelta.current = 0;
+          scrollController.next();
+        }
       } else if (e.deltaY < 0) {
-        scrollController.prev();
+        accumulatedDelta.current += e.deltaY;
+        if (accumulatedDelta.current < -60) {
+          accumulatedDelta.current = 0;
+          scrollController.prev();
+        }
       }
     };
 
